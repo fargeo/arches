@@ -53,10 +53,11 @@ Configuration Manager
 					<div id="" class="col-xs-12 eq-box-md eq-no-panel">
 
 						<!-- Graph -->
-						<div id="graph" class="" style="padding-right:220px;"></div>
+						<div id="graph" class="" style="padding-right:220px;" draggable="true"></div>
 
 						<!-- Library/Permissions/Search -->
 						<div class="library-wrapper">
+							<div id="draggable" class="library-right" style="padding-right: 220px; background-color: #565C63;"><div id="handle" style="height:100%;"><img src="http://lmms.io/wiki/images/3/35/Grabbar.png" style="cursor:pointer; position: relative;top: 50%; transform: translateY(-50%);"></div></div>
 							<div id="library" class="library library-right library-narrow library-dark">
 
 								<!-- nav bar -->
@@ -131,3 +132,26 @@ Configuration Manager
 
 {% block tabs %}
 {% endblock tabs %}
+
+{% block javascript %}
+{{ block.super }}
+	<script>
+        var draggable = document.getElementById('draggable');
+        var library = document.getElementById('library');
+        var currentWidth;
+        var start;
+        draggable.ondragstart = function(e) {
+        	start = e.pageX;
+        	currentWidth = $(library).width();
+        };
+        document.addEventListener("dragover", function(e){
+		    e = e || window.event;
+		    var dragX = e.pageX, dragY = e.pageY;
+		    var width = start - dragX;
+
+		    $(library).width(currentWidth + width);
+		    $(draggable).css({'padding-right': currentWidth + width});
+		}, false);
+
+    </script>
+{% endblock javascript %}
