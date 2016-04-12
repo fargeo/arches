@@ -57,7 +57,29 @@ Configuration Manager
 
 						<!-- Library/Permissions/Search -->
 						<div class="library-wrapper">
-							<div id="draggable" class="library-right" style="padding-right: 220px; background-color: #565C63;"><div id="handle" style="height:100%;"><img src="http://lmms.io/wiki/images/3/35/Grabbar.png" style="cursor:pointer; position: relative;top: 50%; transform: translateY(-50%);"></div></div>
+
+							<div style="position: absolute; height: 100%">
+								<div id="draggable" class="library-right" style="padding-right: 220px; background-color: #565C63;">
+									<div id="handle" style="height:100%;"><img src="http://lmms.io/wiki/images/3/35/Grabbar.png" style="cursor:pointer; position: relative;top: 50%; transform: translateY(-50%);"></div>
+								</div>
+
+
+								<!-- Node Editor -->
+								<div id="nodeCrud" data-bind="visible: graphModel.get('editNode'), with: nodeForm" style="display: none;" class="ui-widget-content">
+		                            {% include 'views/graph-manager/node-form.htm' %}
+								</div>
+
+								<!-- Permissions Form -->
+								<div id="permissions-panel" class="library-right library-medium library-dark" style="display: none;" data-bind="with: permissionsForm">
+		                            {% include 'views/graph-manager/permissions-form.htm' %}
+								</div>
+
+								<!-- Graph Library -->
+								<div id="branch-panel" class="library-right library-medium library-dark" style="display: none;" data-bind="visible: branchList.selectedItem, with: branchList">
+		                            {% include 'views/graph-manager/branch-info.htm' %}
+								</div>
+							</div>	
+													
 							<div id="library" class="library library-right library-narrow library-dark">
 
 								<!-- nav bar -->
@@ -101,21 +123,6 @@ Configuration Manager
 							</div>
 						</div>
 
-						<!-- Node Editor -->
-						<div id="nodeCrud" data-bind="visible: graphModel.get('editNode'), with: nodeForm" style="display: none;" class="ui-widget-content">
-                            {% include 'views/graph-manager/node-form.htm' %}
-						</div>
-
-						<!-- Permissions Form -->
-						<div id="permissions-panel" class="library-right library-medium library-dark" style="display: none;" data-bind="with: permissionsForm">
-                            {% include 'views/graph-manager/permissions-form.htm' %}
-						</div>
-
-						<!-- Graph Library -->
-						<div id="branch-panel" class="library-right library-medium library-dark" style="display: none;" data-bind="visible: branchList.selectedItem, with: branchList">
-                            {% include 'views/graph-manager/branch-info.htm' %}
-						</div>
-
 					</div>
 				</div>
 			</div>
@@ -138,6 +145,7 @@ Configuration Manager
 	<script>
         var draggable = document.getElementById('draggable');
         var library = document.getElementById('library');
+        var nodeCrud = document.getElementById('nodeCrud');
         var currentWidth;
         var start;
         draggable.ondragstart = function(e) {
@@ -151,6 +159,7 @@ Configuration Manager
 
 		    $(library).width(currentWidth + width);
 		    $(draggable).css({'padding-right': currentWidth + width});
+		    $(nodeCrud).css({'right': currentWidth + width});
 		}, false);
 
     </script>
