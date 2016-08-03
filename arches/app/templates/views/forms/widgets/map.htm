@@ -1,7 +1,12 @@
 {% load i18n %}
-<div class="map-crud-container relative" data-bind="mapboxgl:{}">
+<div class="map-crud-container relative" data-bind="mapboxgl:mapOptions">
 
     <div class="map map-bordered-top">
     </div>
 
+</div>
+
+<div>
+    <a href="#" data-bind="click:function() {setStyle(mapStreetStyle)}">Streets</a> 
+    <a href="#" data-bind="click:function() {setStyle(mapSatelliteStyle)}">Satellite</a>
 </div>
