@@ -248,6 +248,27 @@ INSERT INTO cards(cardid, name, description, instructions,
 -- End Arches Configuration graph
 
 
+
+CREATE OR REPLACE VIEW vw_getgeoms AS 
+    SELECT t.tileid,
+       t.resourceinstanceid,
+       n.nodeid,
+       st_transform(st_geomfromgeojson((t.tiledata::json -> n.nodeid::text)::text), 900913)::geometry(Geometry,900913) AS geom
+      FROM tiles t
+        LEFT JOIN nodes n ON t.nodegroupid = n.nodegroupid
+     WHERE (( SELECT count(*) AS count
+              FROM jsonb_object_keys(t.tiledata) jsonb_object_keys(jsonb_object_keys)
+             WHERE (jsonb_object_keys.jsonb_object_keys IN ( SELECT n_1.nodeid::text AS nodeid
+                      FROM nodes n_1
+                     WHERE n_1.datatype = 'geometry'::text)))) > 0 AND n.datatype = 'geometry'::text;
+
+
+INSERT INTO tiles (tileid, tiledata, nodegroupid, resourceinstanceid) 
+    VALUES ('d46a0f2e-59ba-11e6-9fd8-2bd95184f1b3', 
+        {"769cdc61-581d-11e6-8ae8-6c4008b05c4c": {"crs": {"type": "name", "properties": {"name": "EPSG:4326"}}, "type": "Polygon", "coordinates": [[[-122.4463069714309, 37.793994118088484], [-122.4463069714309, 37.794590505030378], [-122.445387164029341, 37.794730282523489], [-122.445304617211235, 37.794171170964333], [-122.445528672860362, 37.794040710991688], [-122.445941406950794, 37.793994118088484], [-122.4463069714309, 37.793994118088484]]]}},
+        '20000000-0000-0000-0000-000000000000',  
+        '40000000-0000-0000-0000-000000000000')
+
 -- for forms.py -- remove when done developing forms
 
 -- INSERT INTO cards(cardid, name, description, instructions, cardinality)
