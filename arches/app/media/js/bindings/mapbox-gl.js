@@ -2,9 +2,10 @@ define([
     'jquery',
     'underscore',
     'knockout',
-    'mapboxgl',
-    'arches'
-], function ($, _, ko, mapboxgl, arches) {
+    'mapbox-gl',
+    'arches',
+    'plugins/mapbox-gl-draw'
+], function ($, _, ko, mapboxgl, arches, Draw) {
     ko.bindingHandlers.mapboxgl = {
         init: function(element, valueAccessor, allBindings, viewModel, bindingContext){
             var defaults = {
@@ -18,7 +19,10 @@ define([
                 _.defaults(options, defaults)
             );
 
-            viewModel.map = map
+            viewModel.map = map;
+
+            var draw = Draw();
+            map.addControl(draw);
         }
     }
 

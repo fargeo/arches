@@ -3,8 +3,9 @@ define([
     'viewmodels/widget',
     'map/mapbox-street-style',
     'map/mapbox-satellite-style',
-    'bindings/mapboxgl'
-], function (ko, WidgetViewModel, mapStreetStyle, mapSatelliteStyle) {
+    'map/mapzen-style',
+    'bindings/mapbox-gl'
+], function (ko, WidgetViewModel, mapStreetStyle, mapSatelliteStyle, mapzenStyle) {
     /**
     * registers a map-widget component for use in forms
     * @function external:"ko.components".map-widget
@@ -15,7 +16,7 @@ define([
             WidgetViewModel.apply(this, [params]);
 
             this.mapOptions = {
-                style: mapSatelliteStyle
+                style: mapzenStyle
             };
 
             var self = this
@@ -25,8 +26,9 @@ define([
 
             this.mapStreetStyle = mapStreetStyle;
             this.mapSatelliteStyle = mapSatelliteStyle;
+            this.mapzenStyle = mapzenStyle;
 
-            
+
         },
         template: { require: 'text!widget-templates/map' }
     });
