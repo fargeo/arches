@@ -8,6 +8,7 @@
 @import url(../plugins/chosen.min.css);
 @import url(//cdnjs.cloudflare.com/ajax/libs/select2/3.5.0/select2.min.css);
 @import url(//cdnjs.cloudflare.com/ajax/libs/select2/3.5.0/select2-bootstrap.min.css);
+@import url(//api.mapbox.com/mapbox-gl-js/v0.21.0/mapbox-gl.css);
 
 
 .navbar-top-links:last-child>li {
