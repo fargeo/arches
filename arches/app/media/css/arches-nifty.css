@@ -3623,6 +3623,49 @@ div.row.widget-wrapper {
 	33% { background: #ccc; box-shadow: 0 0 1px #ccc, 15px 30px 1px #ccc, -15px 30px 1px #ddd; }
 	66% { background: #ccc; box-shadow: 0 0 1px #ccc, 15px 30px 1px #ddd, -15px 30px 1px #ccc; }
 }
+
+.overlay-container {
+ 	position: absolute;
+ 	height: 500px;
+ 	color: #123;
+ 	background: #eee;
+ 	top: 0px;
+ 	left: 0px;
+ 	right: 0px;
+ 	z-index: 5;
+ 	padding: 20px;
+ }
+
+ .map-container {
+  	height: 545px;
+  }
+
+  .map-crud-container {
+  	height: 500px;
+  }
+
+  .map-tab {
+  	padding: 0px;
+  }
+
+  .map-bordered-top {
+  	border-top: 2px solid #ddd;
+  }
+
+  .map-report-tile {
+   	height: 545px;
+   }
+
+   .map-report-container {
+   	padding-left: 5px;
+   }
+
+ .icon-xl {
+ 	font-size: 36px;
+ 	padding-top: 7px;
+ 	padding-right: 10px;
+ }
+
 @media min-width 992px {
     #page-content {
         padding: 15px 15px 25px;

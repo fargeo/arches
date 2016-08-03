@@ -1,4 +1,4 @@
-define(['knockout', 'viewmodels/widget'], function (ko, WidgetViewModel) {
+define(['knockout', 'viewmodels/widget', 'bindings/mapboxgl'], function (ko, WidgetViewModel) {
     /**
     * registers a map-widget component for use in forms
     * @function external:"ko.components".map-widget
