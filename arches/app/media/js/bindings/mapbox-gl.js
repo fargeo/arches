@@ -20,6 +20,15 @@ define([
             );
 
             viewModel.map = map;
+            viewModel.setBasemap = function(basemapType) {
+                arches.basemapLayers.forEach(function(layer) {
+                    if (layer.name === basemapType && !map.getLayer(layer.layer.id)) {
+                        map.addLayer(layer.layer)
+                    } else if (map.getLayer(layer.layer.id) && layer.name !== basemapType) {
+                        map.removeLayer(layer.layer.id)
+                    }
+                })
+            };
 
             var draw = Draw();
             map.addControl(draw);

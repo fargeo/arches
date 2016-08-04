@@ -151,7 +151,7 @@ def card(request, cardid):
             card = Card(data)
             card.save()
             return JSONResponse(card)
-            
+
     if request.method == 'GET':
         try:
             card = Card.objects.get(cardid=cardid)
@@ -160,6 +160,8 @@ def card(request, cardid):
             card = Card.objects.get(cardid=Graph.objects.get(graphid=cardid).get_root_card().cardid)
         datatypes = models.DDataType.objects.all()
         widgets = models.Widget.objects.all()
+        basemap_layers = models.BasemapLayers.objects.all()
+        map_sources = models.MapSources.objects.all()
         return render(request, 'views/graph/card-configuration.htm', {
             'main_script': 'views/graph/card-configuration',
             'graphid': card.graph_id,
@@ -168,6 +170,8 @@ def card(request, cardid):
             'datatypes': JSONSerializer().serialize(datatypes),
             'widgets': widgets,
             'widgets_json': JSONSerializer().serialize(widgets),
+            'basemap_layers': basemap_layers,
+            'map_sources': map_sources,
         })
 
     return HttpResponseNotFound()

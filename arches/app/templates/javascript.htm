@@ -141,7 +141,14 @@
                 title: "{% trans 'Request Failed...' %}",
                 text: "{% trans 'Sorry! The request failed. Please try again.  Contact your system administrator if the problem persists.' %}"
             },
-            mapboxApiKey: '{{ map_info.mapbox_api_key }}'
+            mapboxApiKey: '{{ map_info.mapbox_api_key }}',
+            mapSources: {{% autoescape off %}{% for map_source in map_sources %}
+                '{{ map_source.name }}': {{ map_source.source_json }},
+            {% endfor %}{% endautoescape %}},
+            basemapLayers: [{% autoescape off %}{% for basemap_layer in basemap_layers %}{
+                'name': '{{ basemap_layer.name }}',
+                'layer': {{ basemap_layer.layer_json }}
+            },{% endfor %}{% endautoescape %}]
         };
     });
 

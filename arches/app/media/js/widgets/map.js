@@ -1,11 +1,10 @@
 define([
     'knockout',
     'viewmodels/widget',
-    'map/mapbox-street-style',
-    'map/mapbox-satellite-style',
-    'map/mapzen-style',
+    'arches',
+    'map/mapbox-style',
     'bindings/mapbox-gl'
-], function (ko, WidgetViewModel, mapStreetStyle, mapSatelliteStyle, mapzenStyle) {
+], function (ko, WidgetViewModel, arches, mapStyle) {
     /**
     * registers a map-widget component for use in forms
     * @function external:"ko.components".map-widget
@@ -16,19 +15,8 @@ define([
             WidgetViewModel.apply(this, [params]);
 
             this.mapOptions = {
-                style: mapzenStyle
+                style: mapStyle
             };
-
-            var self = this
-            this.setStyle = function(style) {
-                self.map.setStyle(style)
-            };
-
-            this.mapStreetStyle = mapStreetStyle;
-            this.mapSatelliteStyle = mapSatelliteStyle;
-            this.mapzenStyle = mapzenStyle;
-
-
         },
         template: { require: 'text!widget-templates/map' }
     });

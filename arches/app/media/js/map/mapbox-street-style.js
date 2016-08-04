@@ -7,9 +7,14 @@ define([], function() {
             "mapbox:type": "template"
         },
         "sources": {
-            "mapbox": {
+            "mapbox-streets": {
                 "url": "mapbox://mapbox.mapbox-streets-v7",
                 "type": "vector"
+            },
+            "mapbox-satellite": {
+                "type": "raster",
+                "url": "mapbox://mapbox.satellite",
+                "tileSize": 256
             }
         },
         "sprite": "mapbox://sprites/mapbox/basic-v9",
@@ -26,7 +31,7 @@ define([], function() {
             {
                 "id": "landuse_overlay_national_park",
                 "type": "fill",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "source-layer": "landuse_overlay",
                 "filter": [
                     "==",
@@ -42,7 +47,7 @@ define([], function() {
             {
                 "id": "landuse_park",
                 "type": "fill",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "source-layer": "landuse",
                 "filter": [
                     "==",
@@ -57,7 +62,7 @@ define([], function() {
             {
                 "id": "waterway",
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "source-layer": "waterway",
                 "filter": [
                     "all",
@@ -94,7 +99,7 @@ define([], function() {
             {
                 "id": "water",
                 "type": "fill",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "source-layer": "water",
                 "paint": {
                     "fill-color": "#a0cfdf"
@@ -104,7 +109,7 @@ define([], function() {
             {
                 "id": "building",
                 "type": "fill",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "source-layer": "building",
                 "paint": {
                     "fill-color": "#d6d6d6"
@@ -146,7 +151,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "tunnel_minor",
                 "paint": {
                     "line-color": "#efefef",
@@ -202,7 +207,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "tunnel_major",
                 "paint": {
                     "line-color": "#fff",
@@ -262,7 +267,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "road_minor",
                 "paint": {
                     "line-color": "#efefef",
@@ -315,7 +320,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "road_major",
                 "paint": {
                     "line-color": "#fff",
@@ -370,7 +375,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "bridge_minor case",
                 "paint": {
                     "line-color": "#dedede",
@@ -435,7 +440,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "bridge_major case",
                 "paint": {
                     "line-color": "#dedede",
@@ -503,7 +508,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "bridge_minor",
                 "paint": {
                     "line-color": "#efefef",
@@ -555,7 +560,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "bridge_major",
                 "paint": {
                     "line-color": "#fff",
@@ -603,7 +608,7 @@ define([], function() {
                     ]
                 ],
                 "type": "line",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "admin_country",
                 "paint": {
                     "line-color": "#8b8a8a",
@@ -664,7 +669,7 @@ define([], function() {
                     ]
                 ],
                 "type": "symbol",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "poi_label",
                 "paint": {
                     "text-color": "#666",
@@ -717,7 +722,7 @@ define([], function() {
                     ]
                 ],
                 "type": "symbol",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "road_major_label",
                 "paint": {
                     "text-color": "#666",
@@ -768,7 +773,7 @@ define([], function() {
                     ]
                 ],
                 "type": "symbol",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "place_label_other",
                 "paint": {
                     "text-color": "#666",
@@ -815,7 +820,7 @@ define([], function() {
                     ]
                 ],
                 "type": "symbol",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "place_label_city",
                 "paint": {
                     "text-color": "#666",
@@ -854,7 +859,7 @@ define([], function() {
                     "Point"
                 ],
                 "type": "symbol",
-                "source": "mapbox",
+                "source": "mapbox-streets",
                 "id": "country_label",
                 "paint": {
                     "text-color": "#666",

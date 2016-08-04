@@ -7,7 +7,7 @@ define([], function() {
             "mapbox:type": "default"
         },
         "sources": {
-            "mapbox": {
+            "mapbox-satellite": {
                 "type": "raster",
                 "url": "mapbox://mapbox.satellite",
                 "tileSize": 256
@@ -26,7 +26,7 @@ define([], function() {
             {
                 "id": "satellite",
                 "type": "raster",
-                "source": "mapbox",
+                "source": "mapbox-satellite",
                 "source-layer": "mapbox_satellite_full"
             }
         ]
