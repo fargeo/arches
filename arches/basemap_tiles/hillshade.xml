@@ -1,11 +1,13 @@
-<Layer name="Hillshade">
-    <StyleName>raster</StyleName>
-    <Datasource>
-        <Parameter name="type">raster</Parameter>
-        <Parameter name="file">arches4/arches/basemap_tiles/hillshade.tiff</Parameter>
-        <Parameter name="lox">min_x</Parameter>
-        <Parameter name="loy">min_y</Parameter>
-        <Parameter name="hix">max_x</Parameter>
-        <Parameter name="hiy">max_y</Parameter>
-    </Datasource>
-</Layer>
+<Map>
+	<Layer name="Hillshade">
+	    <StyleName>raster</StyleName>
+	    <Datasource>
+	        <Parameter name="type">raster</Parameter>
+	        <Parameter name="file">hillshade.tiff</Parameter>
+	        <Parameter name="lox">496275</Parameter>
+	        <Parameter name="loy">4243425</Parameter>
+	        <Parameter name="hix">559515</Parameter>
+	        <Parameter name="hiy">4183215</Parameter>
+	    </Datasource>
+	</Layer>
+</Map>
