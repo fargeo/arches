@@ -584,6 +584,28 @@ class Migration(migrations.Migration):
                 'managed': True,
             },
         ),
+        migrations.CreateModel(
+            name='MapSources',
+            fields=[
+                ('name', models.TextField()),
+                ('source', django.contrib.postgres.fields.jsonb.JSONField(blank=True, db_column='source', null=True)),
+            ],
+            options={
+                'db_table': 'map_sources',
+                'managed': True,
+            },
+        ),
+        migrations.CreateModel(
+            name='BasemapLayers',
+            fields=[
+                ('name', models.TextField()),
+                ('layer', django.contrib.postgres.fields.jsonb.JSONField(blank=True, db_column='layer', null=True)),
+            ],
+            options={
+                'db_table': 'basemap_layers',
+                'managed': True,
+            },
+        ),
         migrations.AddField(
             model_name='ddatatype',
             name='defaultwidget',
