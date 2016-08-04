@@ -32,6 +32,8 @@ define([
 
             var draw = Draw();
             map.addControl(draw);
+
+            map.addControl(new mapboxgl.Navigation());
         }
     }
 
