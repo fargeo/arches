@@ -257,7 +257,7 @@ INSERT INTO nodes(nodeid, name, description, istopnode, ontologyclass, datatype,
 
 
 
-CREATE OR REPLACE VIEW vw_getgeoms AS 
+CREATE OR REPLACE VIEW vw_getgeoms AS
     SELECT t.tileid,
        t.resourceinstanceid,
        n.nodeid,
@@ -271,10 +271,10 @@ CREATE OR REPLACE VIEW vw_getgeoms AS
                      WHERE n_1.datatype = 'geometry'::text)))) > 0 AND n.datatype = 'geometry'::text;
 
 
-INSERT INTO tiles (tileid, tiledata, nodegroupid, resourceinstanceid) 
-    VALUES ('d46a0f2e-59ba-11e6-9fd8-2bd95184f1b3', 
+INSERT INTO tiles (tileid, tiledata, nodegroupid, resourceinstanceid)
+    VALUES ('d46a0f2e-59ba-11e6-9fd8-2bd95184f1b3',
         '{"30000000-0000-0000-0000-000000000004": {"crs": {"type": "name", "properties": {"name": "EPSG:4326"}}, "type": "Polygon", "coordinates": [[[-122.4463069714309, 37.793994118088484], [-122.4463069714309, 37.794590505030378], [-122.445387164029341, 37.794730282523489], [-122.445304617211235, 37.794171170964333], [-122.445528672860362, 37.794040710991688], [-122.445941406950794, 37.793994118088484], [-122.4463069714309, 37.793994118088484]]]}}'::jsonb,
-        '20000000-0000-0000-0000-000000000001',  
+        '20000000-0000-0000-0000-000000000001',
         '40000000-0000-0000-0000-000000000000');
 
 -- for forms.py -- remove when done developing forms
@@ -2966,3 +2966,21 @@ INSERT INTO basemap_layers(name, layer)
         },
         "source-layer": "country_label"
     }');
+
+INSERT INTO map_sources(name, source)
+   VALUES ('mapzen', '{
+               "type": "vector",
+               "tiles": ["https://vector.mapzen.com/osm/all/{z}/{x}/{y}.mvt?api_key=vector-tiles-LM25tq4"]
+       }');
+
+INSERT INTO basemap_layers(name, layer)
+   VALUES ('mapzen', '{
+       "id": "mapzen-water",
+       "type": "fill",
+       "source": "mapzen",
+       "source-layer": "water",
+       "filter": ["==", "$type", "Polygon"],
+       "paint": {
+           "fill-color": "#3887be"
+       }
+   }');
