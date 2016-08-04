@@ -540,3 +540,13 @@ class BasemapLayers(models.Model):
     class Meta:
         managed = True
         db_table = 'basemap_layers'
+
+class VwGetGeoms(models.Model):
+    tileid = models.UUIDField(default=uuid.uuid1, primary_key=True)
+    resourceinstanceid = models.UUIDField(default=uuid.uuid1)
+    nodeid = models.UUIDField(default=uuid.uuid1)
+    geom = models.GeometryField()
+
+    class Meta:
+      managed = False
+      db_table = 'vw_getgeoms'

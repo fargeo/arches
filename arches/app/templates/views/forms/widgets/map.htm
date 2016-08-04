@@ -7,6 +7,6 @@
 </div>
 
 <div>
-    <a href="#" data-bind="click:function() {setBasemap('streets')}">Streets</a>
-    <a href="#" data-bind="click:function() {setBasemap('satellite')}">Satellite</a>
+    basemap:
+    <select data-bind="options: basemaps, value: selectedBasemap"></select>
 </div>

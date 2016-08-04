@@ -186,4 +186,8 @@
             },
         {% endfor %}{% endautoescape %}};
     });
+
+    define('geoms', function () {
+        {% autoescape off %}return {{geoms}};{% endautoescape %}
+    });
 </script>

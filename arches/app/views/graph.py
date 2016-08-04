@@ -29,6 +29,7 @@ from arches.app.utils.JSONResponse import JSONResponse
 from arches.app.models.graph import Graph
 from arches.app.models.card import Card
 from arches.app.models import models
+from django.core.serializers import serialize
 
 def test(request, graphid):
     #graph = Graph.objects.filter(isresource=True)
@@ -162,6 +163,9 @@ def card(request, cardid):
         widgets = models.Widget.objects.all()
         basemap_layers = models.BasemapLayers.objects.all()
         map_sources = models.MapSources.objects.all()
+        geoms = serialize('geojson', models.VwGetGeoms.objects.all(),
+          geometry_field='geom',
+          fields=('tileid','nodeid','resourceinstanceid',))
         return render(request, 'views/graph/card-configuration.htm', {
             'main_script': 'views/graph/card-configuration',
             'graphid': card.graph_id,
@@ -172,6 +176,7 @@ def card(request, cardid):
             'widgets_json': JSONSerializer().serialize(widgets),
             'basemap_layers': basemap_layers,
             'map_sources': map_sources,
+            'geoms': geoms,
         })
 
     return HttpResponseNotFound()
