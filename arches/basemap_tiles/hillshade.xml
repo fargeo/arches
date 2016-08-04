@@ -2,12 +2,13 @@
 	<Layer name="Hillshade">
 	    <StyleName>raster</StyleName>
 	    <Datasource>
-	        <Parameter name="type">raster</Parameter>
-	        <Parameter name="file">hillshade.tiff</Parameter>
-	        <Parameter name="lox">496275</Parameter>
-	        <Parameter name="loy">4243425</Parameter>
-	        <Parameter name="hix">559515</Parameter>
-	        <Parameter name="hiy">4183215</Parameter>
+	        <Parameter name="type">gdal</Parameter>
+	        <Parameter name="file">hillshade_mercator.tif</Parameter>
 	    </Datasource>
 	</Layer>
+	<Style name="raster">
+	    <Rule name="rule 1">
+	        <RasterSymbolizer opacity=".7" scaling="bilinear" mode="normal" />
+	    </Rule>
+	</Style>
 </Map>
