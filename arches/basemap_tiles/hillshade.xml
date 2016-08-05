@@ -1,11 +1,14 @@
-<Layer name="Hillshade">
-    <StyleName>raster</StyleName>
-    <Datasource>
-        <Parameter name="type">raster</Parameter>
-        <Parameter name="file">arches4/arches/basemap_tiles/hillshade.tiff</Parameter>
-        <Parameter name="lox">min_x</Parameter>
-        <Parameter name="loy">min_y</Parameter>
-        <Parameter name="hix">max_x</Parameter>
-        <Parameter name="hiy">max_y</Parameter>
-    </Datasource>
-</Layer>
+<Map>
+	<Layer name="Hillshade">
+	    <StyleName>raster</StyleName>
+	    <Datasource>
+	        <Parameter name="type">gdal</Parameter>
+	        <Parameter name="file">hillshade_mercator.tif</Parameter>
+	    </Datasource>
+	</Layer>
+	<Style name="raster">
+	    <Rule name="rule 1">
+	        <RasterSymbolizer opacity=".7" scaling="bilinear" mode="normal" />
+	    </Rule>
+	</Style>
+</Map>

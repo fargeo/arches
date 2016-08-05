@@ -61,10 +61,12 @@
                                     <!-- Form -->
                                     <div class="col-lg-9" style="padding-bottom: 10px;">
 
-                                        <form class="widgets row" style="margin-bottom: 20px;" data-bind="sortable: {
+                                        <!-- TODO: restore sortable after map widget dev! -->
+                                        <!-- <form class="widgets row" style="margin-bottom: 20px;" data-bind="sortable: {
                                                 data:card.get('widgets'),
                                                 beforeMove: self.beforeMove
-                                            }">
+                                            }"> -->
+                                        <form class="widgets row" style="margin-bottom: 20px;" data-bind="foreach:card.get('widgets')">
                                             <div class='widget-preview' data-bind='component: {
                                                 name: self.widgetLookup[get("widget_id")()].name,
                                                 params: {
