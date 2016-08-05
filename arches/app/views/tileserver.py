@@ -11,13 +11,10 @@ def handle_request(request):
 
     status_code, headers, content = TileStache.requestHandler2(config, path_info, query_string, script_name)
 
-    #headers.setdefault('Content-Length', str(len(content)))
-
     response = HttpResponse()
     response.content = content
     response.status_code = status_code
     for header, value in headers.items():
         response[header] = value
-    #response.headers.setdefault('Content-Length', str(len(content)))
     response['Content-length'] = str(len(content))
     return response
