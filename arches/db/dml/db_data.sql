@@ -274,6 +274,36 @@ INSERT INTO tiles (tileid, tiledata, nodegroupid, resourceinstanceid)
         '20000000-0000-0000-0000-000000000001',  
         '40000000-0000-0000-0000-000000000000');
 
+INSERT INTO map_sources(name, source)
+   VALUES ('hillshade', '{
+               "type": "vector",
+               "tiles": ["http://localhost:8000/tileserver/hillshade/{z}/{x}/{y}.png"]
+       }');
+
+INSERT INTO basemap_layers(name, layer)
+   VALUES ('streets', '{"id": "hillshade", "type": "fill", "paint": {"fill-color": "#441aa2 "},"source": "hillshade", "interactive": true, "source-layer": "hillshade"}');
+
+
+INSERT INTO map_sources(name, source)
+   VALUES ('pg_resource_test', '{
+               "type": "vector",
+               "tiles": ["http://localhost:8000/tileserver/pg_resource_test/{z}/{x}/{y}.mvt"]
+       }');
+
+INSERT INTO basemap_layers(name, layer)
+   VALUES ('streets', '{"id": "pg_resource_test", "type": "fill", "paint": {"fill-color": "#441aa2 "},"source": "pg_resource_test", "interactive": true, "source-layer": "pg_resource_test"}');
+
+
+INSERT INTO map_sources(name, source)
+   VALUES ('vector-sf-lands', '{
+               "type": "vector",
+               "tiles": ["http://localhost:8000/tileserver/vector-sf-lands/{z}/{x}/{y}.geojson"]
+       }');
+
+INSERT INTO basemap_layers(name, layer)
+   VALUES ('streets', '{"id": "vector-sf-lands", "type": "fill", "paint": {"fill-color": "#441aa2 "},"source": "vector-sf-lands", "interactive": true, "source-layer": "vector-sf-lands"}');
+
+
 -- for forms.py -- remove when done developing forms
 
 -- INSERT INTO cards(cardid, name, description, instructions, cardinality)

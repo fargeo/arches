@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.i18n import patterns
-from arches.app.views import concept, entity, main, map, resources, search, config, graph
+from arches.app.views import concept, entity, main, map, resources, search, config, graph, tileserver
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -73,6 +73,7 @@ urlpatterns = [
     url(r'^test/(?P<graphid>%s)$' % uuid_regex, graph.test, name='test'),
 
     url(r'^widgets/(?P<template>[a-zA-Z_-]*)', main.widget, name="widgets"),
+    url(r'^tileserver/*', tileserver.handle_request, name="tileserver"),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
