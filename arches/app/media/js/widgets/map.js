@@ -26,18 +26,18 @@ define([
                 }
             });
 
-            mapStyle.sources.archesgeojson = {
-                "type": "geojson",
-                "data": geoms
-            };
-
-            layers.push({
-                "id": "archesgeojson_layer",
-                "type": "fill",
-                "paint": {"fill-color": "#000000"},
-                "interactive": true,
-                "source": "archesgeojson"
-            });
+            // mapStyle.sources.archesgeojson = {
+            //     "type": "geojson",
+            //     "data": geoms
+            // };
+            //
+            // layers.push({
+            //     "id": "archesgeojson_layer",
+            //     "type": "fill",
+            //     "paint": {"fill-color": "#000000"},
+            //     "interactive": true,
+            //     "source": "archesgeojson"
+            // });
 
             mapStyle.layers = layers;
             this.mapOptions = {

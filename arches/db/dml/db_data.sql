@@ -294,7 +294,7 @@ INSERT INTO map_sources(name, source)
        }');
 
 INSERT INTO basemap_layers(name, layer)
-   VALUES ('streets', '{"id": "pg_resource_test", "type": "fill", "paint": {"fill-color": "#441aa2 "},"source": "pg_resource_test", "interactive": true, "source-layer": "pg_resource_test"}');
+   VALUES ('mapzen', '{"id": "pg_resource_test", "type": "fill", "paint": {"fill-color": "#441aa2 "},"source": "pg_resource_test", "interactive": true, "source-layer": "pg_resource_test"}');
 
 
 INSERT INTO map_sources(name, source)

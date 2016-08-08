@@ -7,6 +7,7 @@ unicodecsv
 pyyaml
 pyshp
 networkx
+mapnik
 git+https://github.com/fargeo/TileStache
 
 # Leave the following line commented so that pip install will ignore this
