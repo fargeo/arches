@@ -624,6 +624,7 @@ class Migration(migrations.Migration):
                 ('widgetid', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
                 ('name', models.TextField()),
                 ('component', models.TextField()),
+                ('template', models.TextField(blank=True, null=True)),
                 ('defaultconfig', JSONField(blank=True, db_column='defaultconfig', null=True)),
                 ('helptext', models.TextField(blank=True, null=True)),
                 ('datatype', models.TextField()),

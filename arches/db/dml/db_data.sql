@@ -161,26 +161,26 @@ INSERT INTO auth_user(username, first_name, last_name, email, password, is_staff
 INSERT INTO auth_user(username, first_name, last_name, email, password, is_staff, is_active, is_superuser, last_login, date_joined)
     VALUES ('anonymous', '', '', '', '!S9npj7MhUqm30gT5ldm4TposL8jU5jDL4Ab02uuK', 'f', 't', 'f', '2012-03-15 15:29:31.211-07', '2012-03-15 15:29:31.211-07');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000001', 'text-widget', 'views/components/widgets/text', 'string', '{ "placeholder": "Enter text", "width": "100%", "maxLength": null}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000001', 'text-widget', 'views/components/widgets/text', 'templates/views/components/widgets/text.htm', 'string', '{ "placeholder": "Enter text", "width": "100%", "maxLength": null}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000002', 'concept-select-widget', 'views/components/widgets/concept-select', 'concept', '{ "placeholder": "Select an option", "options": [] }');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000002', 'concept-select-widget', 'views/components/widgets/concept-select', 'templates/views/components/widgets/concept-select.htm', 'concept', '{ "placeholder": "Select an option", "options": [] }');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000012', 'concept-multiselect-widget', 'views/components/widgets/concept-multiselect', 'concept-list', '{ "placeholder": "Select an option", "options": [] }');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000012', 'concept-multiselect-widget', 'views/components/widgets/concept-multiselect', 'templates/views/components/widgets/concept-multiselect.htm', 'concept-list', '{ "placeholder": "Select an option", "options": [] }');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000015', 'domain-select-widget', 'views/components/widgets/domain-select', 'domain-value', '{ "placeholder": "Select an option" }');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000015', 'domain-select-widget', 'views/components/widgets/domain-select', 'templates/views/components/widgets/domain-select.htm', 'domain-value', '{ "placeholder": "Select an option" }');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000016', 'domain-multiselect-widget', 'views/components/widgets/domain-multiselect', 'domain-value-list', '{ "placeholder": "Select an option" }');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000016', 'domain-multiselect-widget', 'views/components/widgets/domain-multiselect',  'templates/views/components/widgets/domain-multiselect.htm', 'domain-value-list', '{ "placeholder": "Select an option" }');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000003', 'switch-widget', 'views/components/widgets/switch', 'boolean', '{ "subtitle": "Click to switch"}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000003', 'switch-widget', 'views/components/widgets/switch', 'templates/views/components/widgets/switch.htm', 'boolean', '{ "subtitle": "Click to switch"}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000004', 'datepicker-widget', 'views/components/widgets/datepicker', 'date',
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000004', 'datepicker-widget', 'views/components/widgets/datepicker', 'templates/views/components/widgets/datepicker.htm', 'date',
     '{
         "placeholder": "Enter date",
         "viewMode": "days",
@@ -190,14 +190,14 @@ INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
     }'
 );
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000005', 'rich-text-widget', 'views/components/widgets/rich-text', 'string', '{}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000005', 'rich-text-widget', 'views/components/widgets/rich-text', 'templates/views/components/widgets/rich-text.htm', 'string', '{}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000006', 'radio-boolean-widget', 'views/components/widgets/radio-boolean', 'boolean', '{"trueLabel": "Yes", "falseLabel": "No"}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000006', 'radio-boolean-widget', 'views/components/widgets/radio-boolean', 'templates/views/components/widgets/radio-boolean.htm', 'boolean', '{"trueLabel": "Yes", "falseLabel": "No"}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000007', 'map-widget', 'views/components/widgets/map', 'geojson-feature-collection',
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000007', 'map-widget', 'views/components/widgets/map', 'templates/views/components/widgets/map.htm', 'geojson-feature-collection',
     '{
         "basemap": "streets",
         "geometryTypes": [{"text":"Point", "id":"Point"}, {"text":"Line", "id":"Line"}, {"text":"Polygon", "id":"Polygon"}],
@@ -219,23 +219,23 @@ INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
     }'
 );
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000008', 'number-widget', 'views/components/widgets/number', 'number', '{ "placeholder": "Enter number", "width": "100%", "min":"", "max":""}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000008', 'number-widget', 'views/components/widgets/number', 'templates/views/components/widgets/number.htm', 'number', '{ "placeholder": "Enter number", "width": "100%", "min":"", "max":""}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000009', 'concept-radio-widget', 'views/components/widgets/concept-radio', 'concept', '{ "options": [] }');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000009', 'concept-radio-widget', 'views/components/widgets/concept-radio', 'templates/views/components/widgets/concept-radio.htm', 'concept', '{ "options": [] }');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000013', 'concept-checkbox-widget', 'views/components/widgets/concept-checkbox', 'concept-list', '{ "options": [] }');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000013', 'concept-checkbox-widget', 'views/components/widgets/concept-checkbox', 'templates/views/components/widgets/concept-checkbox.htm', 'concept-list', '{ "options": [] }');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000017', 'domain-radio-widget', 'views/components/widgets/domain-radio', 'domain-value', '{}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000017', 'domain-radio-widget', 'views/components/widgets/domain-radio', 'templates/views/components/widgets/domain-radio.htm', 'domain-value', '{}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000018', 'domain-checkbox-widget', 'views/components/widgets/domain-checkbox', 'domain-value-list', '{}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000018', 'domain-checkbox-widget', 'views/components/widgets/domain-checkbox', 'templates/views/components/widgets/domain-checkbox.htm', 'domain-value-list', '{}');
 
-INSERT INTO widgets(widgetid, name, component, datatype, defaultconfig)
-    VALUES ('10000000-0000-0000-0000-000000000019', 'file-widget', 'views/components/widgets/file', 'file-list', '{"acceptedFiles": "", "maxFilesize": "200"}');
+INSERT INTO widgets(widgetid, name, component, template, datatype, defaultconfig)
+    VALUES ('10000000-0000-0000-0000-000000000019', 'file-widget', 'views/components/widgets/file',  'templates/views/components/widgets/file.htm', 'file-list', '{"acceptedFiles": "", "maxFilesize": "200"}');
 
 -- Node graph
 INSERT INTO graphs(graphid, name, author, version, description, isresource, isactive, iconclass, subtitle, ontologyid)

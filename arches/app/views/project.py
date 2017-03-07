@@ -65,10 +65,10 @@ class MobileProjectView(View):
             resource_models.append(resource_model)
 
         widgets = models.Widget.objects.all()
-        widget_details = [{'name': widget.name, 'component': widget.component, 'id':widget.widgetid} for widget in widgets]
+        widget_details = [{'name': widget.name, 'component': widget.component, 'template': widget.template, 'id':widget.widgetid} for widget in widgets]
         config = {
             'resource_models': resource_models,
-            'widget_details': widget_details
+            'widget_details': widget_details,
         }
         project.config = config
         projects = [project]
