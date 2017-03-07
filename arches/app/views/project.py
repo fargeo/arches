@@ -59,6 +59,7 @@ class MobileProjectView(View):
             resource_model['graphid'] = graph['graphid']
             resource_model['subtitle'] = graph['subtitle']
             resource_model['name'] = graph['name']
+            resource_model['nodes'] = graph['nodes']
             resource_model['cards'] = graph['cards']
 
             values = {}
