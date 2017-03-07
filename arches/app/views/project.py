@@ -33,6 +33,7 @@ class MobileProjectView(View):
         graph_ids = [uuid.UUID('ccbd1537-ac5e-11e6-84a5-026d961c88e6'), uuid.UUID('3caf329f-b8f7-11e6-84a5-026d961c88e6')]
         f = JSONSerializer().serializeToPython(Graph.objects.filter(graphid__in=graph_ids))
         project = models.FieldProject()
+        project.pk = '1a0c7eb8-0375-11e7-8fdb-784f435179ea'
         project.name = 'City of Z'
         resource_models = []
         resource_model = {}
