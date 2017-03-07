@@ -56,44 +56,11 @@ class MobileProjectView(View):
             resource_model['graphid'] = graph['graphid']
             resource_model['subtitle'] = graph['subtitle']
             resource_model['name'] = graph['name']
+            resource_model['nodes'] = graph['nodes']
             resource_model['cards'] = graph['cards']
 
             values = {}
             domains = []
-
-            def get_values(concept, values):
-                for subconcept in concept.subconcepts:
-                    for value in subconcept.values:
-                        values[value.id] = value.value
-                    get_values(subconcept, values)
-                return values
-
-            for node in graph['nodes']:
-                # print node['name']
-                if node['datatype'] in ['concept', 'concept-list', 'domain-value', 'domain-value-list']:
-                    if node['datatype'] in ['concept', 'concept-list']:
-                        if node['config'] != None:
-                            rdmCollection = node['config']['rdmCollection']
-                        try:
-                            concept = models.Concept().get(rdmCollection, include_subconcepts=True, semantic=False)
-                            rdmCollectionLabel = concept.get_preflabel.value
-                            collevtion_values = {}
-                            concepts = OrderedDict(sorted(get_values(concept, collection_values).items(), key=itemgetter(1)))
-                            values[rdmCollectionLabel] = concepts
-                        except:
-                            pass
-                    elif node['datatype'] in ['domain-value', 'domain-value-list']:
-                        concepts = {}
-                        if node['config']['options']:
-                            for concept in node['config']['options']:
-                                concepts[concept['id']] = concept['text']
-
-                        values[node['name']] = OrderedDict(sorted(concepts.items(), key=itemgetter(1)))
-
-                domains.append(values)
-
-
-            resource_model['domains'] = domains
 
             resource_models.append(resource_model)
 
