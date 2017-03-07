@@ -33,6 +33,7 @@ class MobileProjectView(View):
         graph_ids = [uuid.UUID('ccbd1537-ac5e-11e6-84a5-026d961c88e6'), uuid.UUID('3caf329f-b8f7-11e6-84a5-026d961c88e6')]
         f = JSONSerializer().serializeToPython(Graph.objects.filter(graphid__in=graph_ids))
         project = models.FieldProject()
+        project.pk = '1a0c7eb8-0375-11e7-8fdb-784f435179ea'
         project.name = 'City of Z'
         resource_models = []
         resource_model = {}
@@ -45,18 +46,23 @@ class MobileProjectView(View):
                     # child_nodes, child_edges = nodes[0].get_child_nodes_and_edges()
                     for node in nodes:
                         widget = models.DDataType.objects.get(pk=node.datatype).defaultwidget
+                        print JSONSerializer().serialize(widget)
                         if widget:
-                            widget_model = models.CardXNodeXWidget()
-                            widget_model.node_id = node.nodeid
-                            widget_model.card_id = card['cardid']
-                            widget_model.widget_id = widget.pk
-                            widget_model.config = widget.defaultconfig
-                            widget_model.label = node.name
+                            widget_model = {}
+                            widget_model["widget_id"] = widget.pk
+                            widget_model["card_id"] = card['cardid']
+                            widget_model["label"] = node.name
+                            widget_model["sortorder"] = card['sortorder']
+                            widget_model["config"] = widget.defaultconfig
+                            widget_model["deafultconfig"] = widget.defaultconfig
+                            widget_model['node'] = node
+
                             card['widgets'].append(widget_model)
+
             resource_model['graphid'] = graph['graphid']
             resource_model['subtitle'] = graph['subtitle']
             resource_model['name'] = graph['name']
-            resource_model['nodes'] = graph['nodes']
+            # resource_model['nodes'] = graph['nodes']
             resource_model['cards'] = graph['cards']
 
             values = {}
