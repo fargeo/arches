@@ -111,7 +111,7 @@ urlpatterns = [
     url(r'^tileserver/*', tileserver.handle_request, name="tileserver"),
     url(r'^map_layer_manager/(?P<maplayerid>%s)$' % uuid_regex, MapLayerManagerView.as_view(), name='map_layer_update'),
     url(r'^map_layer_manager/*', MapLayerManagerView.as_view(), name="map_layer_manager"),
-    url(r'^mobile/(?P<mobileprojectid>%s)$' % uuid_regex, MobileProjectView.as_view(), name='mobile_project'),
+    url(r'^project/(?P<mobileprojectid>%s)$' % uuid_regex, MobileProjectView.as_view(), name='mobile_project'),
 
 
 
