@@ -29,15 +29,12 @@ from operator import itemgetter
 
 class MobileProjectView(View):
 
-    def get(self, request, mobileprojectid):
-        from pprint import pprint as pp
-        f = JSONSerializer().serializeToPython(Graph.objects.filter(graphid=uuid.UUID(mobileprojectid)))
-
-        payload = {}
-
-        payload['mobileprojectid']=[]
+    def get(self, request):
+        graph_ids = [uuid.UUID('ccbd1537-ac5e-11e6-84a5-026d961c88e6'), uuid.UUID('3caf329f-b8f7-11e6-84a5-026d961c88e6')]
+        f = JSONSerializer().serializeToPython(Graph.objects.filter(graphid__in=graph_ids))
+        project = models.FieldProject()
+        project.name = 'City of Z'
         resource_models = []
-
         resource_model = {}
         for graph in f:
             for card in graph['cards']:
@@ -72,7 +69,7 @@ class MobileProjectView(View):
                 return values
 
             for node in graph['nodes']:
-                print node['name']
+                # print node['name']
                 if node['datatype'] in ['concept', 'concept-list', 'domain-value', 'domain-value-list']:
                     if node['datatype'] in ['concept', 'concept-list']:
                         if node['config'] != None:
@@ -99,11 +96,17 @@ class MobileProjectView(View):
             resource_model['domains'] = domains
 
             resource_models.append(resource_model)
-        f = JSONSerializer().serialize(resource_models, indent = 4)
 
+        widgets = models.Widget.objects.all()
+        widget_details = [{'name': widget.name, 'component': widget.component, 'id':widget.widgetid} for widget in widgets]
+        config = {
+            'resource_models': resource_models,
+            'widget_details': widget_details
+        }
+        project.config = config
+        projects = [project]
+        f = JSONSerializer().serialize(projects, indent = 4)
         # f = JSONSerializer().serialize(f, indent=4)
-
-
         response = JSONResponse(f, content_type='json/plain')
         response['Content-Disposition'] = 'inline';
         return response

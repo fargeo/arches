@@ -73,14 +73,14 @@ class Concept(models.Model):
         managed = True
         db_table = 'concepts'
 
-# class FieldProject(models.Model):
-#     projectid = models.UUIDField(primary_key=True, default=uuid.uuid1)
-#     config = JSONField(blank=True, null=True, db_column='config')
-#     name = models.TextField()
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'field_projects'
+class FieldProject(models.Model):
+    projectid = models.UUIDField(primary_key=True, default=uuid.uuid1)
+    config = JSONField(blank=True, null=True, db_column='config')
+    name = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'field_projects'
 
 class DDataType(models.Model):
     datatype = models.TextField(primary_key=True)
@@ -680,6 +680,7 @@ class MapLayers(models.Model):
 
 
 class TileserverLayers(models.Model):
+    tileserverlayer_id = models.UUIDField(primary_key=True, default=uuid.uuid1)
     name = models.TextField(unique=True)
     path = models.TextField()
     config = JSONField()

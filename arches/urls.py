@@ -26,7 +26,7 @@ from arches.app.views.resource import ResourceEditorView, ResourceListView, Reso
 from arches.app.views.concept import RDMView
 from arches.app.views.tile import TileData
 from arches.app.views.map import MapLayerManagerView
-from arches.app.views.mobile import MobileProjectView
+from arches.app.views.project import MobileProjectView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -111,7 +111,7 @@ urlpatterns = [
     url(r'^tileserver/*', tileserver.handle_request, name="tileserver"),
     url(r'^map_layer_manager/(?P<maplayerid>%s)$' % uuid_regex, MapLayerManagerView.as_view(), name='map_layer_update'),
     url(r'^map_layer_manager/*', MapLayerManagerView.as_view(), name="map_layer_manager"),
-    url(r'^project/(?P<mobileprojectid>%s)$' % uuid_regex, MobileProjectView.as_view(), name='mobile_project'),
+    url(r'^project$', MobileProjectView.as_view(), name='mobile_project'),
 
 
 

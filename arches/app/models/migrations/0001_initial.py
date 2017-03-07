@@ -61,7 +61,7 @@ def make_permissions(apps, schema_editor, with_create_permissions=True):
 
     graph_editor_group = Group.objects.using(db_alias).create(name='Graph Editor')
     graph_editor_group.permissions.add(read_nodegroup, write_nodegroup, delete_nodegroup)
-    
+
     resource_editor_group = Group.objects.using(db_alias).create(name='Resource Editor')
     rdm_admin_group = Group.objects.using(db_alias).create(name='RDM Administrator')
     app_admin_group = Group.objects.using(db_alias).create(name='Application Administrator')
@@ -684,6 +684,18 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'graphs_x_mapping_file',
+                'managed': True,
+            },
+        ),
+        migrations.CreateModel(
+            name='FieldProject',
+            fields=[
+                ('projectid', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
+                ('config', django.contrib.postgres.fields.jsonb.JSONField(blank=True, db_column='config', null=True)),
+                ('name', models.TextField(blank=True, null=True)),
+            ],
+            options={
+                'db_table': 'field_projects',
                 'managed': True,
             },
         ),
