@@ -63,7 +63,7 @@ define([
             };
         },
         template: {
-            require: 'text!widget-templates/datepicker'
+            element: 'datepicker-widget-template'
         }
     });
 });

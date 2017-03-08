@@ -19,7 +19,7 @@ define([
             ConceptWidgetViewModel.apply(this, [params]);
         },
         template: {
-            require: 'text!widget-templates/select'
+            element: 'select-widget-template'
         }
     });
 });

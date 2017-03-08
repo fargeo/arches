@@ -189,7 +189,7 @@ define([
 
         },
         template: {
-            require: 'text!widget-templates/file'
+            element: 'file-widget-template'
         }
     });
 });

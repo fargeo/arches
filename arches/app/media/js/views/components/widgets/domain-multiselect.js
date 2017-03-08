@@ -21,7 +21,7 @@ define([
             this.multiple = true;
         },
         template: {
-            require: 'text!widget-templates/select'
+            element: 'select-widget-template'
         }
     });
 });

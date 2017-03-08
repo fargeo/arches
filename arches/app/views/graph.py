@@ -316,7 +316,6 @@ class CardView(GraphBaseView):
                 ontology_properties = [item['ontology_property'] for item in self.graph.get_valid_domain_ontology_classes(nodeid=card.nodegroup_id)]
 
         datatypes = models.DDataType.objects.all()
-        widgets = models.Widget.objects.all()
         map_layers = models.MapLayers.objects.all()
         map_sources = models.MapSources.objects.all()
         resource_graphs = Graph.objects.exclude(pk=card.graph_id).exclude(pk='22000000-0000-0000-0000-000000000002').exclude(isresource=False).exclude(isactive=False)
@@ -330,8 +329,6 @@ class CardView(GraphBaseView):
             permissions=JSONSerializer().serialize([{'codename': permission.codename, 'name': permission.name} for permission in get_perms_for_model(card.nodegroup)]),
             datatypes_json=JSONSerializer().serialize(datatypes),
             datatypes=datatypes,
-            widgets=widgets,
-            widgets_json=JSONSerializer().serialize(widgets),
             map_layers=map_layers,
             map_sources=map_sources,
             resource_graphs=resource_graphs,

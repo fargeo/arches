@@ -33,6 +33,6 @@ define(['knockout', 'underscore', 'viewmodels/widget'], function (ko, _, WidgetV
                 return this.value() === this.on;
             }, this);
         },
-        template: { require: 'text!widget-templates/switch' }
+        template: { element: 'switch-widget-template' }
     });
 });

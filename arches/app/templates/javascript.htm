@@ -287,3 +287,6 @@
         {% autoescape off %}return {{geoms}};{% endautoescape %}
     });
 </script>
+{% for widget_template in widget_templates %}
+    {% include widget_template %}
+{% endfor %}

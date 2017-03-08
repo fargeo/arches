@@ -8,6 +8,6 @@ define(['knockout', 'underscore', 'viewmodels/widget', 'bindings/summernote'], f
     */
     return ko.components.register('rich-text-widget', {
         viewModel: WidgetViewModel,
-        template: { require: 'text!widget-templates/rich-text' }
+        template: { element: 'rich-text-widget-template' }
     });
 });

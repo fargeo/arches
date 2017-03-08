@@ -1,6 +1,8 @@
 {% extends "views/components/widgets/base.htm" %}
 {% load i18n %}
 
+{% block template_id %}switch-widget-template{% endblock template_id %}
+
 {% block form %}
 <div class="toggle-container">
     <span class="switch switch-small" data-bind="css: {'on': getvalue}, click: setvalue"><small></small></span>
