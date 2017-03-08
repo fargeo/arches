@@ -125,6 +125,8 @@ SPARQL_ENDPOINT_PROVIDERS = (
 
 APP_NAME = 'Arches'
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 #######################################
 ###  END PACKAGE SPECIFIC SETTINGS  ###
 #######################################
@@ -285,11 +287,13 @@ INSTALLED_APPS = (
     'arches.app.models',
     'arches.management',
     'guardian',
+    'corsheaders',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     #'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

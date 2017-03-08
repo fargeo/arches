@@ -1,5 +1,7 @@
 {% extends "views/components/widgets/base.htm" %} {% load i18n %} {% block form %}
 
+{% block template_id %}map-widget-template{% endblock template_id %}
+
 <div class="row widget-wrapper" data-bind="css: {'report-header': context==='report-header'}">
     <label class="control-label widget-input-label" for="" data-bind="text:label"></label>
 

@@ -16,7 +16,7 @@ define([
     return ko.components.register('domain-radio-widget', {
         viewModel: DomainWidgetViewModel,
         template: {
-            require: 'text!widget-templates/radio'
+            element: 'radio-widget-template'
         }
     });
 });

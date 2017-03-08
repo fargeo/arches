@@ -1219,7 +1219,7 @@ define([
             this.mapStyle.layers = this.addInitialLayers();
         },
         template: {
-            require: 'text!widget-templates/map'
+            element: 'map-widget-template'
         }
     });
 });

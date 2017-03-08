@@ -20,6 +20,6 @@ define(['knockout', 'underscore', 'viewmodels/widget'], function (ko, _, WidgetV
             params.configKeys = ['trueLabel', 'falseLabel'];
             WidgetViewModel.apply(this, [params]);
         },
-        template: { require: 'text!widget-templates/radio-boolean' }
+        template: { element: 'radio-boolean-widget-template' }
     });
 });

@@ -86,7 +86,6 @@ class ResourceEditorView(BaseManagerView):
             relationship_type_values = {'values':[{'id':str(c[5]), 'text':str(c[3])} for c in resource_relationship_types], 'default': str(default_relationshiptype_valueid)}
             form = Form(resource_instance.pk)
             datatypes = models.DDataType.objects.all()
-            widgets = models.Widget.objects.all()
             map_layers = models.MapLayers.objects.all()
             map_sources = models.MapSources.objects.all()
             forms = resource_instance.graph.form_set.filter(visible=True)
@@ -101,10 +100,8 @@ class ResourceEditorView(BaseManagerView):
                 form=JSONSerializer().serialize(form),
                 forms=JSONSerializer().serialize(forms_w_cards),
                 datatypes_json=JSONSerializer().serialize(datatypes),
-                widgets=widgets,
                 map_layers=map_layers,
                 map_sources=map_sources,
-                widgets_json=JSONSerializer().serialize(widgets),
                 resourceid=resourceid,
                 resource_graphs=resource_graphs,
                 graph_json=JSONSerializer().serialize(graph),

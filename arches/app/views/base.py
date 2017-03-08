@@ -42,6 +42,9 @@ class BaseManagerView(TemplateView):
             'login':True,
             'print':False,
         }
+        context['widgets'] = models.Widget.objects.all()
+        context['widget_templates'] = models.Widget.objects.order_by().values_list('template', flat=True).distinct()
+        context['widgets_json']=JSONSerializer().serialize(context['widgets'])
         geom_datatypes = [d.pk for d in models.DDataType.objects.filter(isgeometric=True)]
         geom_nodes = models.Node.objects.filter(graph__isresource=True, graph__isactive=True, datatype__in=geom_datatypes)
         resource_layers = []

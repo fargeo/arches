@@ -1,4 +1,6 @@
 {% load i18n %}
+<template id="{% block template_id %}{% endblock template_id %}">
+
 <!-- ko if: !configForm  && state === 'form' -->
 {% block form %}
 {% endblock form %}
@@ -21,3 +23,5 @@
 {% block config_form %}
 {% endblock config_form %}
 <!-- /ko -->
+
+</template>

@@ -14,6 +14,6 @@ define(['knockout', 'underscore', 'viewmodels/widget'], function (ko, _, WidgetV
 
             WidgetViewModel.apply(this, [params]);
         },
-        template: { require: 'text!widget-templates/number' }
+        template: { element: 'number-widget-template' }
     });
 });

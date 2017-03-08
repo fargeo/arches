@@ -13,6 +13,6 @@ define(['knockout', 'underscore', 'viewmodels/widget'], function (ko, _, WidgetV
             params.configKeys = ['placeholder', 'width', 'maxLength'];
             WidgetViewModel.apply(this, [params]);
         },
-        template: { require: 'text!widget-templates/text' }
+        template: { element: 'text-widget-template' }
     });
 });
