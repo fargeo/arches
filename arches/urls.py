@@ -27,6 +27,7 @@ from arches.app.views.concept import RDMView
 from arches.app.views.tile import TileData
 from arches.app.views.map import MapLayerManagerView
 from arches.app.views.project import MobileProjectView
+from arches.app.views.project import ProjectEditorView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -112,7 +113,7 @@ urlpatterns = [
     url(r'^map_layer_manager/(?P<maplayerid>%s)$' % uuid_regex, MapLayerManagerView.as_view(), name='map_layer_update'),
     url(r'^map_layer_manager/*', MapLayerManagerView.as_view(), name="map_layer_manager"),
     url(r'^project$', MobileProjectView.as_view(), name='mobile_project'),
-
+    url(r'^project_manager/*', ProjectEditorView.as_view(), name='project_manager'),
 
 
     # Uncomment the admin/doc line below to enable admin documentation:

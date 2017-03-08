@@ -428,9 +428,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                         <!--Menu list item-->
                                         <li>
                                             <a href="#">
-                                                <i class="fa fa-globe"></i>
+                                                <i class="fa fa-globe" data-bind="click: navigate.bind(this, '{% url 'project_manager' %}') "></i>
                                                 <span class="menu-title">
-                                                    <strong>Field Project Manager</strong>
+                                                    <strong>{% trans "Field Project Manager" %}</strong>
                                                 </span>
                                             </a>
                                         </li>

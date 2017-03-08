@@ -16,16 +16,47 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+
 import uuid
+from django.shortcuts import redirect, render
 from django.views.generic import View, TemplateView
+from django.utils.translation import ugettext as _
 from django.http import HttpResponseNotFound, QueryDict, HttpResponse
+from django.utils.decorators import method_decorator
+from arches.app.utils.decorators import group_required
 from arches.app.utils.JSONResponse import JSONResponse
+from arches.app.views.base import BaseManagerView
 from arches.app.models import models
 from arches.app.models.graph import Graph
 from arches.app.models.card import Card
 from arches.app.utils.betterJSONSerializer import JSONSerializer, JSONDeserializer
 from collections import OrderedDict
 from operator import itemgetter
+
+
+@method_decorator(group_required('Resource Editor'), name='dispatch')
+class ProjectEditorView(BaseManagerView):
+    def get(self, request, projectid=None):
+        projects = models.FieldProject.objects.all()
+        graphs = Graph.objects.all()
+        widgets = models.Widget.objects.all()
+        map_layers = models.MapLayers.objects.all()
+        map_sources = models.MapSources.objects.all()
+        icons = models.Icon.objects.order_by('name')
+        context = self.get_context_data(
+            icons=JSONSerializer().serialize(icons),
+            map_layers=map_layers,
+            map_sources=map_sources,
+            graphs = graphs,
+            projects = JSONSerializer().serializeToPython(projects),
+            main_script='views/project-manager',
+            )
+
+        context['nav']['title'] = _('Field Project Manager')
+        context['nav']['icon'] = 'fa-globe'
+        context['nav']['help'] = (_('Field Project Manager'),'')
+        return render(request, 'views/project.htm', context)
+
 
 class MobileProjectView(View):
 

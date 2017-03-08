@@ -692,8 +692,8 @@ class Migration(migrations.Migration):
             name='FieldProject',
             fields=[
                 ('projectid', models.UUIDField(default=uuid.uuid1, primary_key=True, serialize=False)),
-                ('config', django.contrib.postgres.fields.jsonb.JSONField(blank=True, db_column='config', null=True)),
-                ('name', models.TextField(blank=True, null=True)),
+                ('config', django.contrib.postgres.fields.jsonb.JSONField(blank=True, db_column='config', null=True, default={})),
+                ('name', models.TextField(blank=True, null=True, default='')),
             ],
             options={
                 'db_table': 'field_projects',

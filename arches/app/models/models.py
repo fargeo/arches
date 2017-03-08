@@ -75,8 +75,8 @@ class Concept(models.Model):
 
 class FieldProject(models.Model):
     projectid = models.UUIDField(primary_key=True, default=uuid.uuid1)
-    config = JSONField(blank=True, null=True, db_column='config')
-    name = models.TextField(blank=True, null=True)
+    config = JSONField(blank=True, null=True, db_column='config', default={})
+    name = models.TextField(blank=True, null=True, default='')
 
     class Meta:
         managed = True
