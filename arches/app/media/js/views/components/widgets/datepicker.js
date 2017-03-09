@@ -1,4 +1,4 @@
-define([
+require([
     'knockout',
     'underscore',
     'viewmodels/widget',

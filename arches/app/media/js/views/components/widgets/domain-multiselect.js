@@ -1,4 +1,4 @@
-define([
+require([
     'knockout',
     'viewmodels/domain-widget',
     'plugins/knockout-select2'
