@@ -76,6 +76,10 @@ class Command(BaseCommand):
             print("Cannot export data. Destination directory, {0} already exists".format(dest))
 
     def create_relational_schema(self):
-        graphs = models.GraphModel.objects.exclude(isresource=False)
+        graphs = models.GraphModel.objects.exclude(isresource=False).exclude(pk=settings.SYSTEM_SETTINGS_RESOURCE_MODEL_ID)
+        sql = ''
         for graph in graphs:
-            print(graph.name)
+            sql += """
+                CREATE TABLE %s (resource_id uuid, legacy_id text);
+            """ % graph.name.replace(' ', '_')
+        print(sql)
