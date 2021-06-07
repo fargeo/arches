@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import os
 import subprocess
 from arches.app.models.system_settings import settings
+from arches.app.models import models
 from arches.management.commands import utils
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
@@ -42,6 +43,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["operation"] == "shp":
             self.shapefile(dest=options["dest"], table=options["table"])
+        if options["operation"] == "schema":
+            self.create_relational_schema()
 
     def shapefile(self, dest, table):
         geometry_types = {
@@ -71,3 +74,8 @@ class Command(BaseCommand):
                     print("No records in table for export")
         else:
             print("Cannot export data. Destination directory, {0} already exists".format(dest))
+
+    def create_relational_schema(self):
+        graphs = models.GraphModel.objects.exclude(isresource=False)
+        for graph in graphs:
+            print(graph.name)
