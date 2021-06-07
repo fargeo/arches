@@ -23,6 +23,7 @@ from arches.app.models import models
 from arches.management.commands import utils
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
+from slugify import slugify
 
 
 class Command(BaseCommand):
@@ -78,8 +79,23 @@ class Command(BaseCommand):
     def create_relational_schema(self):
         graphs = models.GraphModel.objects.exclude(isresource=False).exclude(pk=settings.SYSTEM_SETTINGS_RESOURCE_MODEL_ID)
         sql = ''
+        def prepend_parent_names(node, name):
+            name = "%s-%s" % (node.name, name)
+            if node.nodegroup.parentnodegroup is not None:
+                prepend_parent_names(models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id), name)
+            return name
         for graph in graphs:
             sql += """
                 CREATE TABLE %s (resource_id uuid, legacy_id text);
-            """ % graph.name.replace(' ', '_')
+            """ % slugify(graph.name, separator="_")
+            nodes = models.Node.objects.filter(graph_id=graph.pk, istopnode=False)
+            for node in nodes:
+                if node.is_collector:
+                    name = node.name
+                    if node.nodegroup.parentnodegroup is not None:
+                        name = prepend_parent_names(models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id), name)
+                    name = "%s-%s" % (graph.name, name)
+                    sql += """
+                        CREATE TABLE %s ();
+                    """ % slugify(name, separator="_")
         print(sql)
