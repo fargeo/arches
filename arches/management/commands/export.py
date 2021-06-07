@@ -85,17 +85,35 @@ class Command(BaseCommand):
                 prepend_parent_names(models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id), name)
             return name
         for graph in graphs:
+            graph_name_slug = slugify(graph.name, separator="_")
             sql += """
-                CREATE TABLE %s (resource_id uuid, legacy_id text);
-            """ % slugify(graph.name, separator="_")
+                CREATE TABLE %(name)s (
+                    %(name)s_id uuid,
+                    legacy_id text,
+                    PRIMARY KEY(%(name)s_id)
+                );
+            """ % {'name': graph_name_slug}
             nodes = models.Node.objects.filter(graph_id=graph.pk, istopnode=False)
             for node in nodes:
                 if node.is_collector:
                     name = node.name
                     if node.nodegroup.parentnodegroup is not None:
                         name = prepend_parent_names(models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id), name)
-                    name = "%s-%s" % (graph.name, name)
+                    name = "%(node_name)s-%(graph_name)s" % {
+                        'node_name': name,
+                        'graph_name': graph.name
+                    }
                     sql += """
-                        CREATE TABLE %s ();
-                    """ % slugify(name, separator="_")
+                        CREATE TABLE %(node_name)s (
+                            %(node_name)s_id uuid,
+                            %(graph_name)s_id uuid,
+                            PRIMARY KEY(%(node_name)s_id),
+                            CONSTRAINT fk_%(graph_name)s
+                                FOREIGN KEY(%(graph_name)s_id)
+                                REFERENCES %(graph_name)s(%(graph_name)s_id)
+                        );
+                    """ % {
+                        'node_name': slugify(name, separator="_"),
+                        'graph_name': graph_name_slug
+                    }
         print(sql)
