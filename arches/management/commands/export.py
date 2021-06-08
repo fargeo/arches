@@ -20,6 +20,7 @@ import os
 import subprocess
 from arches.app.models.system_settings import settings
 from arches.app.models import models
+from arches.app.models.concept import get_preflabel_from_valueid
 from arches.management.commands import utils
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
@@ -88,9 +89,9 @@ class Command(BaseCommand):
             "geojson-feature-collection": "GEOMETRY",
             "domain-value": "TEXT",
             "domain-value-list": "TEXT",
-            "date": "TEXT",
+            "date": "TIMESTAMP",
             "node-value": "TEXT",
-            "boolean": "TEXT",
+            "boolean": "BOOLEAN",
             "edtf": "TEXT",
             "annotation": "TEXT",
             "url": "TEXT",
@@ -171,23 +172,39 @@ class Command(BaseCommand):
                                     ADD COLUMN {member_node_name} {datatype};
                                 COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
                             """
+                            if datatype == "GEOMETRY":
+                                post_sql += f"""
+                                    CREATE INDEX {name}_gix
+                                        ON {schema_name}.{name}
+                                        USING GIST ({member_node_name});
+                                """
                             for tile in tiles:
                                 value = tile.data[str(member_node.pk)]
-                                if datatype == "GEOMETRY":
-                                    value = str(value).replace("'", "\"")
-                                    value = f"""(
-                                        SELECT ST_Collect(ST_GeomFromGeoJSON(feat->>'geometry'))
-                                        FROM (
-                                            SELECT json_array_elements('{value}'::json->'features') AS feat
-                                        ) as f
-                                    )"""
-                                else:
-                                    value = str(value).replace("'", "''")
-                                    value = f"'{value}'"
-                                dml += f"""
-                                    UPDATE {schema_name}.{name} SET {member_node_name} = {value}
-                                        WHERE {name}_id = '{tile.pk}'::uuid;
-                                """
+                                if value is not None:
+                                    if datatype == "GEOMETRY":
+                                        value = str(value).replace("'", "\"")
+                                        value = f"""(
+                                            SELECT ST_Collect(ST_GeomFromGeoJSON(feat->>'geometry'))
+                                            FROM (
+                                                SELECT json_array_elements('{value}'::json->'features') AS feat
+                                            ) as f
+                                        )"""
+                                    elif datatype == "TIMESTAMP":
+                                        if value is None:
+                                            value = "NULL"
+                                        else:
+                                            value = str(value)
+                                            value = f"'{value}'::timestamp"
+                                    elif member_node.datatype == "concept":
+                                        value = get_preflabel_from_valueid(value, settings.LANGUAGE_CODE)['value']
+                                        value = f"'{value}'::{datatype}"
+                                    else:
+                                        value = str(value).replace("'", "''")
+                                        value = f"'{value}'::{datatype}"
+                                    dml += f"""
+                                        UPDATE {schema_name}.{name} SET {member_node_name} = {value}
+                                            WHERE {name}_id = '{tile.pk}'::uuid;
+                                    """
                     if node.nodegroup.parentnodegroup_id is not None:
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         parent_name = parent_node.name
