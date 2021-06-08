@@ -172,7 +172,7 @@ class Command(BaseCommand):
                                 COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
                             """
                             for tile in tiles:
-                                value = tile.data[str(member_node.pk)]
+                                value = str(tile.data[str(member_node.pk)]).replace("'", "''")
                                 # if datatype = "geojson-feature-collection"
                                 dml += f"""
                                     UPDATE {schema_name}.{name} SET {member_node_name} = '{value}'
