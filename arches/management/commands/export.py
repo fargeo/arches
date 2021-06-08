@@ -90,106 +90,77 @@ class Command(BaseCommand):
             "domain-value-list": "TEXT",
             "date": "timestamp",
             "node-value": "TEXT",
-            "boolean": "TEXT",
+            "boolean": "BOOLEAN",
             "edtf": "TEXT",
             "annotation": "TEXT",
             "url": "TEXT",
         }
         graphs = models.GraphModel.objects.exclude(isresource=False).exclude(pk=settings.SYSTEM_SETTINGS_RESOURCE_MODEL_ID)
         schema_name = "arches_relational"
-        pre_sql = """
-        DROP SCHEMA IF EXISTS %(schema_name)s CASCADE;
-        CREATE SCHEMA IF NOT EXISTS %(schema_name)s;
-        """ % {'schema_name': schema_name}
-        post_sql = """
-
+        pre_sql = f"""
+        DROP SCHEMA IF EXISTS {schema_name} CASCADE;
+        CREATE SCHEMA IF NOT EXISTS {schema_name};
         """
+        post_sql = ""
         def prepend_parent_names(node, name):
             name = "%s-%s" % (node.name, name)
-            if node.nodegroup.parentnodegroup is not None:
+            if node.nodegroup.parentnodegroup_id is not None:
                 prepend_parent_names(models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id), name)
             return name
         for graph in graphs:
             top_node = graph.node_set.get(istopnode=True)
             graph_name_slug = slugify(top_node.name, separator="_")
-            pre_sql += """
-                CREATE TABLE %(schema_name)s.%(name)s (
-                    %(name)s_id uuid,
+            pre_sql += f"""
+                CREATE TABLE {schema_name}.{graph_name_slug} (
+                    {graph_name_slug}_id uuid,
                     legacy_id text,
-                    PRIMARY KEY(%(name)s_id)
+                    PRIMARY KEY({graph_name_slug}_id)
                 );
-                COMMENT ON TABLE %(schema_name)s.%(name)s IS '%(id)s';
-            """ % {
-                'schema_name': schema_name,
-                'name': graph_name_slug,
-                'id': graph.pk
-            }
+                COMMENT ON TABLE {schema_name}.{graph_name_slug} IS '{graph.pk}';
+            """
 
             nodes = models.Node.objects.filter(graph_id=graph.pk, istopnode=False)
             for node in nodes:
                 if node.is_collector:
                     name = node.name
-                    if node.nodegroup.parentnodegroup is not None:
+                    if node.nodegroup.parentnodegroup_id is not None:
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         name = prepend_parent_names(parent_node, name)
-                    name = "%(graph_name)s-%(node_name)s" % {
-                        'node_name': name,
-                        'graph_name': graph.name
-                    }
-                    post_sql += """
-                        ALTER TABLE %(schema_name)s.%(node_name)s
-                            ADD CONSTRAINT %(parent_name)s_fk FOREIGN KEY (%(parent_name)s_id)
-                            REFERENCES %(schema_name)s.%(parent_name)s (%(parent_name)s_id);
-                    """ % {
-                        'schema_name': schema_name,
-                        'node_name': slugify(name, separator="_"),
-                        'parent_name': graph_name_slug
-                    }
-                    pre_sql += """
-                        CREATE TABLE %(schema_name)s.%(node_name)s (
-                            %(node_name)s_id uuid,
-                            %(graph_name)s_id uuid,
-                            PRIMARY KEY(%(node_name)s_id)
+                    name = slugify(f"{graph.name}-{name}", separator="_")
+                    post_sql += f"""
+                        ALTER TABLE {schema_name}.{name}
+                            ADD CONSTRAINT {graph_name_slug}_fk FOREIGN KEY ({graph_name_slug}_id)
+                            REFERENCES {schema_name}.{graph_name_slug} ({graph_name_slug}_id);
+                    """
+                    pre_sql += f"""
+                        CREATE TABLE {schema_name}.{name} (
+                            {name}_id uuid,
+                            {graph_name_slug}_id uuid,
+                            PRIMARY KEY({name}_id)
                         );
-                        COMMENT ON TABLE %(schema_name)s.%(node_name)s IS '%(node_id)s';
-                    """ % {
-                        'schema_name': schema_name,
-                        'node_name': slugify(name, separator="_"),
-                        'node_id': node.pk,
-                        'graph_name': graph_name_slug
-                    }
+                        COMMENT ON TABLE {schema_name}.{name} IS '{node.pk}';
+                    """
                     for member_node in node.nodegroup.node_set.all():
                         if member_node.datatype in datatype_map:
-                            post_sql += """
-                                ALTER TABLE %(schema_name)s.%(node_name)s
-                                    ADD COLUMN %(member_node_name)s %(datatype)s;
-                                COMMENT ON COLUMN %(schema_name)s.%(node_name)s.%(member_node_name)s IS '%(member_node_id)s';
-                            """ % {
-                                'schema_name': schema_name,
-                                'node_name': slugify(name, separator="_"),
-                                'member_node_name': slugify(member_node.name, separator="_"),
-                                'member_node_id': member_node.pk,
-                                'datatype': datatype_map[member_node.datatype]
-                            }
-                    if node.nodegroup.parentnodegroup is not None:
+                            member_node_name = slugify(member_node.name, separator="_")
+                            datatype = datatype_map[member_node.datatype]
+                            post_sql += f"""
+                                ALTER TABLE {schema_name}.{name}
+                                    ADD COLUMN {member_node_name} {datatype};
+                                COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
+                            """
+                    if node.nodegroup.parentnodegroup_id is not None:
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         parent_name = parent_node.name
-                        if parent_node.nodegroup.parentnodegroup is not None:
+                        if parent_node.nodegroup.parentnodegroup_id is not None:
                             parent_name = prepend_parent_names(models.Node.objects.get(pk=parent_node.nodegroup.parentnodegroup_id), parent_name)
-                        parent_name = "%(graph_name)s-%(parent_name)s" % {
-                            'parent_name': parent_name,
-                            'graph_name': graph.name
-                        }
-                        post_sql += """
-                            ALTER TABLE %(schema_name)s.%(node_name)s
-                                ADD COLUMN %(parent_name)s_id uuid;
-                            ALTER TABLE %(schema_name)s.%(node_name)s
-                                ADD CONSTRAINT %(parent_name)s_fk FOREIGN KEY (%(parent_name)s_id)
-                                REFERENCES %(schema_name)s.%(parent_name)s (%(parent_name)s_id);
-                        """ % {
-                            'schema_name': schema_name,
-                            'node_name': slugify(name, separator="_"),
-                            'parent_name': slugify(parent_name, separator="_"),
-                        }
+                        parent_name = slugify(f"{graph.name}-{parent_name}", separator="_")
+                        post_sql += f"""
+                            ALTER TABLE {schema_name}.{name}
+                                ADD COLUMN {parent_name}_id uuid;
+                            ALTER TABLE {schema_name}.{name}
+                                ADD CONSTRAINT {parent_name}_fk FOREIGN KEY ({parent_name}_id)
+                                REFERENCES {schema_name}.{parent_name} ({parent_name}_id);
+                        """
         print(pre_sql + post_sql)
 
