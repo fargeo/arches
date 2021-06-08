@@ -85,7 +85,7 @@ class Command(BaseCommand):
             "concept": "TEXT",
             "concept-list": "TEXT",
             "resource-instance-list": "TEXT",
-            "geojson-feature-collection": "TEXT",
+            "geojson-feature-collection": "GEOMETRY",
             "domain-value": "TEXT",
             "domain-value-list": "TEXT",
             "date": "TEXT",
@@ -172,10 +172,20 @@ class Command(BaseCommand):
                                 COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
                             """
                             for tile in tiles:
-                                value = str(tile.data[str(member_node.pk)]).replace("'", "''")
-                                # if datatype = "geojson-feature-collection"
+                                value = tile.data[str(member_node.pk)]
+                                if datatype == "GEOMETRY":
+                                    value = str(value).replace("'", "\"")
+                                    value = f"""(
+                                        SELECT ST_Collect(ST_GeomFromGeoJSON(feat->>'geometry'))
+                                        FROM (
+                                            SELECT json_array_elements('{value}'::json->'features') AS feat
+                                        ) as f
+                                    )"""
+                                else:
+                                    value = str(value).replace("'", "''")
+                                    value = f"'{value}'"
                                 dml += f"""
-                                    UPDATE {schema_name}.{name} SET {member_node_name} = '{value}'
+                                    UPDATE {schema_name}.{name} SET {member_node_name} = {value}
                                         WHERE {name}_id = '{tile.pk}'::uuid;
                                 """
                     if node.nodegroup.parentnodegroup_id is not None:
