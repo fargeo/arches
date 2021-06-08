@@ -103,7 +103,7 @@ class Command(BaseCommand):
         """
         post_sql = ""
         def prepend_parent_names(node, name):
-            name = "%s-%s" % (node.name, name)
+            name = f"{node.name}-{name}"
             if node.nodegroup.parentnodegroup_id is not None:
                 prepend_parent_names(models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id), name)
             return name
