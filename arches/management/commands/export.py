@@ -108,7 +108,7 @@ class Command(BaseCommand):
 
         """
         constrain = """
-        
+
         """
         def prepend_parent_names(node, name):
             name = f"{node.name}-{name}"
@@ -143,7 +143,7 @@ class Command(BaseCommand):
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         name = prepend_parent_names(parent_node, name)
                     name = slugify(f"{graph.name}-{name}", separator="_")
-                    post_sql += f"""
+                    constrain += f"""
                         ALTER TABLE {schema_name}.{name}
                             ADD CONSTRAINT {graph_name_slug}_fk FOREIGN KEY ({graph_name_slug}_id)
                             REFERENCES {schema_name}.{graph_name_slug} ({graph_name_slug}_id);
