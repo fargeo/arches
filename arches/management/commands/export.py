@@ -129,7 +129,7 @@ class Command(BaseCommand):
 
             resources = models.ResourceInstance.objects.filter(graph_id=graph.pk)
             for resource in resources:
-                legacyid = "NULL" if resource.legacyid is None else resource.legacyid
+                legacyid = "NULL" if resource.legacyid is None else f"'{resource.legacyid}'"
                 dml += f"""
                     INSERT INTO {schema_name}.{graph_name_slug} ({graph_name_slug}_id, legacy_id)
                         VALUES ('{resource.pk}'::uuid, {legacyid});
