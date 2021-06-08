@@ -125,6 +125,21 @@ class Command(BaseCommand):
                     PRIMARY KEY({graph_name_slug}_id)
                 );
                 COMMENT ON TABLE {schema_name}.{graph_name_slug} IS '{graph.pk}';
+
+                DROP SCHEMA IF EXISTS graph_relational_metadata CASCADE;
+                CREATE SCHEMA IF NOT EXISTS graph_relational_metadata;
+                CREATE TABLE graph_relational_metadata.graph_relational_metadata
+                (graph_nodegroup_name text
+                ,graph_nodgroup_id text
+                ,graph_is_top_node text
+                ,graph_node_name text
+                ,graph_node_id text
+                ,graph_node_datatype text
+                ,graph_nodegroup_cardinality text
+                ,relational_schema text
+                ,relational_table_name text
+                ,relational_column_name text
+                ,relational_column_datatype text);
             """
 
             resources = models.ResourceInstance.objects.filter(graph_id=graph.pk)
