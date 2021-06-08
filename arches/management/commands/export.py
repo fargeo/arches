@@ -79,18 +79,18 @@ class Command(BaseCommand):
     def create_relational_schema(self):
         datatype_map = {
             "string": "TEXT",
-            "number": "NUMERIC",
+            "number": "TEXT",
             "resource-instance": "TEXT",
             "file-list": "TEXT",
             "concept": "TEXT",
             "concept-list": "TEXT",
             "resource-instance-list": "TEXT",
-            "geojson-feature-collection": "GEOMETRY",
+            "geojson-feature-collection": "TEXT",
             "domain-value": "TEXT",
             "domain-value-list": "TEXT",
-            "date": "timestamp",
+            "date": "TEXT",
             "node-value": "TEXT",
-            "boolean": "BOOLEAN",
+            "boolean": "TEXT",
             "edtf": "TEXT",
             "annotation": "TEXT",
             "url": "TEXT",
@@ -101,7 +101,15 @@ class Command(BaseCommand):
         DROP SCHEMA IF EXISTS {schema_name} CASCADE;
         CREATE SCHEMA IF NOT EXISTS {schema_name};
         """
-        post_sql = ""
+        post_sql = """
+
+        """
+        dml = """
+
+        """
+        constrain = """
+        
+        """
         def prepend_parent_names(node, name):
             name = f"{node.name}-{name}"
             if node.nodegroup.parentnodegroup_id is not None:
@@ -118,6 +126,14 @@ class Command(BaseCommand):
                 );
                 COMMENT ON TABLE {schema_name}.{graph_name_slug} IS '{graph.pk}';
             """
+
+            resources = models.ResourceInstance.objects.filter(graph_id=graph.pk)
+            for resource in resources:
+                legacyid = "NULL" if resource.legacyid is None else resource.legacyid
+                dml += f"""
+                    INSERT INTO {schema_name}.{graph_name_slug} ({graph_name_slug}_id, legacy_id)
+                        VALUES ('{resource.pk}'::uuid, {legacyid});
+                """
 
             nodes = models.Node.objects.filter(graph_id=graph.pk, istopnode=False)
             for node in nodes:
@@ -140,6 +156,12 @@ class Command(BaseCommand):
                         );
                         COMMENT ON TABLE {schema_name}.{name} IS '{node.pk}';
                     """
+                    tiles = models.TileModel.objects.filter(nodegroup_id=node.pk)
+                    for tile in tiles:
+                        dml += f"""
+                            INSERT INTO {schema_name}.{name} ({name}_id, {graph_name_slug}_id)
+                            VALUES ('{tile.pk}'::uuid, '{tile.resourceinstance_id}'::uuid);
+                        """
                     for member_node in node.nodegroup.node_set.all():
                         if member_node.datatype in datatype_map:
                             member_node_name = slugify(member_node.name, separator="_")
@@ -149,6 +171,12 @@ class Command(BaseCommand):
                                     ADD COLUMN {member_node_name} {datatype};
                                 COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
                             """
+                            for tile in tiles:
+                                value = tile.data[str(member_node.pk)]
+                                dml += f"""
+                                    UPDATE {schema_name}.{name} SET {member_node_name} = '{value}'
+                                        WHERE {name}_id = '{tile.pk}'::uuid;
+                                """
                     if node.nodegroup.parentnodegroup_id is not None:
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         parent_name = parent_node.name
@@ -158,9 +186,16 @@ class Command(BaseCommand):
                         post_sql += f"""
                             ALTER TABLE {schema_name}.{name}
                                 ADD COLUMN {parent_name}_id uuid;
+                        """
+                        for tile in tiles:
+                            dml += f"""
+                                UPDATE {schema_name}.{name} SET {parent_name}_id = '{tile.parenttile_id}'::uuid
+                                    WHERE {name}_id = '{tile.pk}'::uuid;
+                            """
+                        constrain += f"""
                             ALTER TABLE {schema_name}.{name}
                                 ADD CONSTRAINT {parent_name}_fk FOREIGN KEY ({parent_name}_id)
                                 REFERENCES {schema_name}.{parent_name} ({parent_name}_id);
                         """
-        print(pre_sql + post_sql)
+        print(pre_sql + post_sql + dml + constrain)
 
