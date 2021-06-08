@@ -96,11 +96,8 @@ class Command(BaseCommand):
             "url": "TEXT",
         }
         graphs = models.GraphModel.objects.exclude(isresource=False).exclude(pk=settings.SYSTEM_SETTINGS_RESOURCE_MODEL_ID)
-        schema_name = "arches_relational"
-        pre_sql = f"""
-        DROP SCHEMA IF EXISTS {schema_name} CASCADE;
-        CREATE SCHEMA IF NOT EXISTS {schema_name};
-        """
+        schema_prefix = "arches_relational"
+        pre_sql = ""
         post_sql = """
 
         """
@@ -117,8 +114,11 @@ class Command(BaseCommand):
             return name
         for graph in graphs:
             top_node = graph.node_set.get(istopnode=True)
-            graph_name_slug = slugify(top_node.name, separator="_")
+            graph_name_slug = slugify(top_node.name, separator="_", max_length=60)
+            schema_name = f"{schema_prefix}_{graph_name_slug}"
             pre_sql += f"""
+                DROP SCHEMA IF EXISTS {schema_name} CASCADE;
+                CREATE SCHEMA IF NOT EXISTS {schema_name};
                 CREATE TABLE {schema_name}.{graph_name_slug} (
                     {graph_name_slug}_id uuid,
                     legacy_id text,
@@ -142,7 +142,7 @@ class Command(BaseCommand):
                     if node.nodegroup.parentnodegroup_id is not None:
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         name = prepend_parent_names(parent_node, name)
-                    name = slugify(f"{graph.name}-{name}", separator="_")
+                    name = slugify(name, separator="_", max_length=60)
                     constrain += f"""
                         ALTER TABLE {schema_name}.{name}
                             ADD CONSTRAINT {graph_name_slug}_fk FOREIGN KEY ({graph_name_slug}_id)
@@ -164,7 +164,7 @@ class Command(BaseCommand):
                         """
                     for member_node in node.nodegroup.node_set.all():
                         if member_node.datatype in datatype_map:
-                            member_node_name = slugify(member_node.name, separator="_")
+                            member_node_name = slugify(member_node.name, separator="_", max_length=60)
                             datatype = datatype_map[member_node.datatype]
                             post_sql += f"""
                                 ALTER TABLE {schema_name}.{name}
@@ -173,6 +173,7 @@ class Command(BaseCommand):
                             """
                             for tile in tiles:
                                 value = tile.data[str(member_node.pk)]
+                                # if datatype = "geojson-feature-collection"
                                 dml += f"""
                                     UPDATE {schema_name}.{name} SET {member_node_name} = '{value}'
                                         WHERE {name}_id = '{tile.pk}'::uuid;
@@ -182,7 +183,7 @@ class Command(BaseCommand):
                         parent_name = parent_node.name
                         if parent_node.nodegroup.parentnodegroup_id is not None:
                             parent_name = prepend_parent_names(models.Node.objects.get(pk=parent_node.nodegroup.parentnodegroup_id), parent_name)
-                        parent_name = slugify(f"{graph.name}-{parent_name}", separator="_")
+                        parent_name = slugify(parent_name, separator="_", max_length=60)
                         post_sql += f"""
                             ALTER TABLE {schema_name}.{name}
                                 ADD COLUMN {parent_name}_id uuid;
