@@ -103,7 +103,7 @@ class Command(BaseCommand):
             CREATE SCHEMA IF NOT EXISTS graph_relational_metadata;
             CREATE TABLE graph_relational_metadata.graph_relational_metadata
             (graph_nodegroup_name text
-            ,graph_nodgroup_id text
+            ,graph_nodegroup_id text
             ,graph_is_top_node text
             ,graph_node_name text
             ,graph_node_id text
