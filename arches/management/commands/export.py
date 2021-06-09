@@ -20,7 +20,7 @@ import os
 import subprocess
 from arches.app.models.system_settings import settings
 from arches.app.models import models
-from arches.app.models.concept import get_preflabel_from_valueid
+from arches.app.models.concept import Concept, get_preflabel_from_valueid
 from arches.management.commands import utils
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
@@ -83,7 +83,7 @@ class Command(BaseCommand):
             "number": "TEXT",
             "resource-instance": "TEXT",
             "file-list": "TEXT",
-            "concept": "TEXT",
+            "concept": "uuid",
             "concept-list": "TEXT",
             "resource-instance-list": "TEXT",
             "geojson-feature-collection": "GEOMETRY",
@@ -98,7 +98,22 @@ class Command(BaseCommand):
         }
         graphs = models.GraphModel.objects.exclude(isresource=False).exclude(pk=settings.SYSTEM_SETTINGS_RESOURCE_MODEL_ID)
         schema_prefix = "arches_relational"
-        pre_sql = ""
+        pre_sql = """
+            DROP SCHEMA IF EXISTS graph_relational_metadata CASCADE;
+            CREATE SCHEMA IF NOT EXISTS graph_relational_metadata;
+            CREATE TABLE graph_relational_metadata.graph_relational_metadata
+            (graph_nodegroup_name text
+            ,graph_nodgroup_id text
+            ,graph_is_top_node text
+            ,graph_node_name text
+            ,graph_node_id text
+            ,graph_node_datatype text
+            ,graph_nodegroup_cardinality text
+            ,relational_schema text
+            ,relational_table_name text
+            ,relational_column_name text
+            ,relational_column_datatype text);
+        """
         post_sql = """
 
         """
@@ -126,21 +141,6 @@ class Command(BaseCommand):
                     PRIMARY KEY({graph_name_slug}_id)
                 );
                 COMMENT ON TABLE {schema_name}.{graph_name_slug} IS '{graph.pk}';
-
-                DROP SCHEMA IF EXISTS graph_relational_metadata CASCADE;
-                CREATE SCHEMA IF NOT EXISTS graph_relational_metadata;
-                CREATE TABLE graph_relational_metadata.graph_relational_metadata
-                (graph_nodegroup_name text
-                ,graph_nodgroup_id text
-                ,graph_is_top_node text
-                ,graph_node_name text
-                ,graph_node_id text
-                ,graph_node_datatype text
-                ,graph_nodegroup_cardinality text
-                ,relational_schema text
-                ,relational_table_name text
-                ,relational_column_name text
-                ,relational_column_datatype text);
             """
 
             resources = models.ResourceInstance.objects.filter(graph_id=graph.pk)
@@ -193,6 +193,33 @@ class Command(BaseCommand):
                                         ON {schema_name}.{name}
                                         USING GIST ({member_node_name});
                                 """
+                            if member_node.datatype == "concept":
+                                pre_sql += f"""
+                                    CREATE TABLE {schema_name}.d_{member_node_name} (
+                                        id uuid,
+                                        label text,
+                                        PRIMARY KEY(id)
+                                    );
+                                """
+                                constrain += f"""
+                                    ALTER TABLE {schema_name}.{name}
+                                        ADD CONSTRAINT {member_node_name}_fk FOREIGN KEY ({member_node_name})
+                                        REFERENCES {schema_name}.d_{member_node_name} (id);
+                                """
+                                if member_node.config['rdmCollection'] is not None:
+                                    domain = Concept().get_child_collections_hierarchically(member_node.config['rdmCollection'], offset=0, limit=1000000, query="")
+                                    domain = [dict(list(zip(["valueto", "depth", "collector"], d))) for d in domain]
+                                    domain = [
+                                        dict(list(zip(["id", "text", "conceptid", "language", "type"], d["valueto"].values())), depth=d["depth"], collector=d["collector"])
+                                        for d in domain
+                                    ]
+                                    for item in domain:
+                                        domain_id = item['id']
+                                        domain_label = item['text']
+                                        dml += f"""
+                                            INSERT INTO {schema_name}.d_{member_node_name} (id, label)
+                                            VALUES ('{domain_id}'::uuid, '{domain_label}');
+                                        """
                             for tile in tiles:
                                 value = tile.data[str(member_node.pk)]
                                 if value is not None:
@@ -211,7 +238,6 @@ class Command(BaseCommand):
                                             value = str(value)
                                             value = f"'{value}'::timestamp"
                                     elif member_node.datatype == "concept":
-                                        value = get_preflabel_from_valueid(value, settings.LANGUAGE_CODE)['value']
                                         value = f"'{value}'::{datatype}"
                                     else:
                                         value = str(value).replace("'", "''")
