@@ -186,6 +186,11 @@ class Command(BaseCommand):
                                 ALTER TABLE {schema_name}.{name}
                                     ADD COLUMN {member_node_name} {datatype};
                                 COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
+
+                                INSERT into graph_relational_metadata.graph_relational_metadata (graph_nodegroup_name, graph_nodegroup_id, 
+                                                                                            graph_node_name, graph_node_id, graph_node_datatype, graph_nodegroup_cardinality,
+                                                                                            relational_schema, relational_table_name, relational_column_name, relational_column_datatype)
+                                VALUES ('{node.name}', '{node.pk}', '{member_node.name}','{member_node.pk}', 'X', 'Y','{schema_name}', '{name}', '{member_node_name}', 'Z' );
                             """
                             if datatype == "GEOMETRY":
                                 post_sql += f"""
