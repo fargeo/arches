@@ -80,7 +80,7 @@ class Command(BaseCommand):
     def create_relational_schema(self):
         datatype_map = {
             "string": "TEXT",
-            "number": "TEXT",
+            "number": "NUMERIC",
             "resource-instance": "TEXT",
             "file-list": "TEXT",
             "concept": "UUID",
@@ -116,15 +116,9 @@ class Command(BaseCommand):
                 relational_column_datatype text
             );
         """
-        post_sql = """
-
-        """
-        dml = """
-
-        """
-        constrain = """
-
-        """
+        post_sql = "\n"
+        dml = "\n"
+        constrain = "\n"
         def prepend_parent_names(node, name):
             name = f"{node.name}-{name}"
             if node.nodegroup.parentnodegroup_id is not None:
@@ -233,8 +227,10 @@ class Command(BaseCommand):
                             if member_node.datatype == "domain-value":
                                 options = member_node.config["options"]
                             if member_node.datatype in ["concept", "domain-value"]:
+                                domain_table_name = f"d_{node.name}_{member_node_name}"
+                                domain_table_name = slugify(domain_table_name, separator="_", max_length=60)
                                 pre_sql += f"""
-                                    CREATE TABLE {schema_name}.d_{member_node_name} (
+                                    CREATE TABLE {schema_name}.{domain_table_name} (
                                         id uuid,
                                         label text,
                                         PRIMARY KEY(id)
@@ -243,13 +239,13 @@ class Command(BaseCommand):
                                 constrain += f"""
                                     ALTER TABLE {schema_name}.{name}
                                         ADD CONSTRAINT {member_node_name}_fk FOREIGN KEY ({member_node_name})
-                                        REFERENCES {schema_name}.d_{member_node_name} (id);
+                                        REFERENCES {schema_name}.{domain_table_name} (id);
                                 """
                                 for option in options:
                                     domain_id = option['id']
                                     domain_label = option['text']
                                     dml += f"""
-                                        INSERT INTO {schema_name}.d_{member_node_name} (id, label)
+                                        INSERT INTO {schema_name}.{domain_table_name} (id, label)
                                         VALUES ('{domain_id}'::uuid, '{domain_label}');
                                     """
 
