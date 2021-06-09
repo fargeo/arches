@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import subprocess
+import textwrap
 from arches.app.models.system_settings import settings
 from arches.app.models import models
 from arches.app.models.concept import Concept, get_preflabel_from_valueid
@@ -98,24 +99,24 @@ class Command(BaseCommand):
         }
         graphs = models.GraphModel.objects.exclude(isresource=False).exclude(pk=settings.SYSTEM_SETTINGS_RESOURCE_MODEL_ID)
         schema_prefix = "arches_relational"
-        pre_sql = """
-            DROP SCHEMA IF EXISTS graph_relational_metadata CASCADE;
-            CREATE SCHEMA IF NOT EXISTS graph_relational_metadata;
-            CREATE TABLE graph_relational_metadata.graph_relational_metadata (
-                graph_model text,
-                graph_nodegroup_name text,
-                graph_nodegroup_id text,
-                graph_is_top_node text,
-                graph_node_name text,
-                graph_node_id text,
-                graph_node_datatype text,
-                graph_nodegroup_cardinality text,
-                relational_schema text,
-                relational_table_name text,
-                relational_column_name text,
-                relational_column_datatype text
-            );
-        """
+        pre_sql = textwrap.dedent("""\
+        DROP SCHEMA IF EXISTS graph_relational_metadata CASCADE;
+        CREATE SCHEMA IF NOT EXISTS graph_relational_metadata;
+        CREATE TABLE graph_relational_metadata.graph_relational_metadata (
+            graph_model text,
+            graph_nodegroup_name text,
+            graph_nodegroup_id text,
+            graph_is_top_node text,
+            graph_node_name text,
+            graph_node_id text,
+            graph_node_datatype text,
+            graph_nodegroup_cardinality text,
+            relational_schema text,
+            relational_table_name text,
+            relational_column_name text,
+            relational_column_datatype text
+        );
+        """)
         post_sql = "\n"
         dml = "\n"
         constrain = "\n"
@@ -128,24 +129,24 @@ class Command(BaseCommand):
             top_node = graph.node_set.get(istopnode=True)
             graph_name_slug = slugify(top_node.name, separator="_", max_length=60)
             schema_name = f"{schema_prefix}_{graph_name_slug}"
-            pre_sql += f"""
-                DROP SCHEMA IF EXISTS {schema_name} CASCADE;
-                CREATE SCHEMA IF NOT EXISTS {schema_name};
-                CREATE TABLE {schema_name}.{graph_name_slug} (
-                    {graph_name_slug}_id uuid,
-                    legacy_id text,
-                    PRIMARY KEY({graph_name_slug}_id)
-                );
-                COMMENT ON TABLE {schema_name}.{graph_name_slug} IS '{graph.pk}';
-            """
+            pre_sql += textwrap.dedent(f"""
+            DROP SCHEMA IF EXISTS {schema_name} CASCADE;
+            CREATE SCHEMA IF NOT EXISTS {schema_name};
+            CREATE TABLE {schema_name}.{graph_name_slug} (
+                {graph_name_slug}_id uuid,
+                legacy_id text,
+                PRIMARY KEY({graph_name_slug}_id)
+            );
+            COMMENT ON TABLE {schema_name}.{graph_name_slug} IS '{graph.pk}';
+            """)
 
             resources = models.ResourceInstance.objects.filter(graph_id=graph.pk)
             for resource in resources:
                 legacyid = "NULL" if resource.legacyid is None else f"'{resource.legacyid}'"
-                dml += f"""
-                    INSERT INTO {schema_name}.{graph_name_slug} ({graph_name_slug}_id, legacy_id)
-                        VALUES ('{resource.pk}'::uuid, {legacyid});
-                """
+                dml += textwrap.dedent(f"""
+                INSERT INTO {schema_name}.{graph_name_slug} ({graph_name_slug}_id, legacy_id)
+                    VALUES ('{resource.pk}'::uuid, {legacyid});
+                """)
 
             nodes = models.Node.objects.filter(graph_id=graph.pk, istopnode=False)
             for node in nodes:
@@ -155,66 +156,66 @@ class Command(BaseCommand):
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         name = prepend_parent_names(parent_node, name)
                     name = slugify(name, separator="_", max_length=60)
-                    constrain += f"""
-                        ALTER TABLE {schema_name}.{name}
-                            ADD CONSTRAINT {graph_name_slug}_fk FOREIGN KEY ({graph_name_slug}_id)
-                            REFERENCES {schema_name}.{graph_name_slug} ({graph_name_slug}_id);
-                    """
-                    pre_sql += f"""
-                        CREATE TABLE {schema_name}.{name} (
-                            {name}_id uuid,
-                            {graph_name_slug}_id uuid,
-                            PRIMARY KEY({name}_id)
-                        );
-                        COMMENT ON TABLE {schema_name}.{name} IS '{node.pk}';
-                    """
+                    constrain += textwrap.dedent(f"""
+                    ALTER TABLE {schema_name}.{name}
+                        ADD CONSTRAINT {graph_name_slug}_fk FOREIGN KEY ({graph_name_slug}_id)
+                        REFERENCES {schema_name}.{graph_name_slug} ({graph_name_slug}_id);
+                    """)
+                    pre_sql += textwrap.dedent(f"""
+                    CREATE TABLE {schema_name}.{name} (
+                        {name}_id uuid,
+                        {graph_name_slug}_id uuid,
+                        PRIMARY KEY({name}_id)
+                    );
+                    COMMENT ON TABLE {schema_name}.{name} IS '{node.pk}';
+                    """)
                     tiles = models.TileModel.objects.filter(nodegroup_id=node.pk)
                     for tile in tiles:
-                        dml += f"""
-                            INSERT INTO {schema_name}.{name} ({name}_id, {graph_name_slug}_id)
+                        dml += textwrap.dedent(f"""
+                        INSERT INTO {schema_name}.{name} ({name}_id, {graph_name_slug}_id)
                             VALUES ('{tile.pk}'::uuid, '{tile.resourceinstance_id}'::uuid);
-                        """
+                        """)
                     for member_node in node.nodegroup.node_set.all():
                         if member_node.datatype in datatype_map:
                             member_node_name = slugify(member_node.name, separator="_", max_length=60)
                             datatype = datatype_map[member_node.datatype]
-                            post_sql += f"""
-                                ALTER TABLE {schema_name}.{name}
-                                    ADD COLUMN {member_node_name} {datatype};
-                                COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
+                            post_sql += textwrap.dedent(f"""
+                            ALTER TABLE {schema_name}.{name}
+                                ADD COLUMN {member_node_name} {datatype};
+                            COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
 
-                                INSERT into graph_relational_metadata.graph_relational_metadata (
-                                    graph_model,
-                                    graph_nodegroup_name,
-                                    graph_nodegroup_id,
-                                    graph_node_name,
-                                    graph_node_id,
-                                    graph_node_datatype,
-                                    graph_nodegroup_cardinality,
-                                    relational_schema,
-                                    relational_table_name,
-                                    relational_column_name,
-                                    relational_column_datatype
-                                ) VALUES (
-                                    '{top_node.name}',
-                                    '{node.name}',
-                                    '{node.pk}',
-                                    '{member_node.name}',
-                                    '{member_node.pk}',
-                                    '{member_node.datatype}',
-                                    '{node.nodegroup.cardinality}',
-                                    '{schema_name}',
-                                    '{name}',
-                                    '{member_node_name}',
-                                    '{datatype}'
-                                );
-                            """
+                            INSERT into graph_relational_metadata.graph_relational_metadata (
+                                graph_model,
+                                graph_nodegroup_name,
+                                graph_nodegroup_id,
+                                graph_node_name,
+                                graph_node_id,
+                                graph_node_datatype,
+                                graph_nodegroup_cardinality,
+                                relational_schema,
+                                relational_table_name,
+                                relational_column_name,
+                                relational_column_datatype
+                            ) VALUES (
+                                '{top_node.name}',
+                                '{node.name}',
+                                '{node.pk}',
+                                '{member_node.name}',
+                                '{member_node.pk}',
+                                '{member_node.datatype}',
+                                '{node.nodegroup.cardinality}',
+                                '{schema_name}',
+                                '{name}',
+                                '{member_node_name}',
+                                '{datatype}'
+                            );
+                            """)
                             if datatype == "GEOMETRY":
-                                post_sql += f"""
-                                    CREATE INDEX {name}_gix
-                                        ON {schema_name}.{name}
-                                        USING GIST ({member_node_name});
-                                """
+                                post_sql += textwrap.dedent(f"""
+                                CREATE INDEX {name}_gix
+                                    ON {schema_name}.{name}
+                                    USING GIST ({member_node_name});
+                                """)
                             options = []
                             if member_node.datatype == "concept":
                                 if member_node.config['rdmCollection'] is not None:
@@ -229,37 +230,37 @@ class Command(BaseCommand):
                             if member_node.datatype in ["concept", "domain-value"]:
                                 domain_table_name = f"d_{node.name}_{member_node_name}"
                                 domain_table_name = slugify(domain_table_name, separator="_", max_length=60)
-                                pre_sql += f"""
-                                    CREATE TABLE {schema_name}.{domain_table_name} (
-                                        id uuid,
-                                        label text,
-                                        PRIMARY KEY(id)
-                                    );
-                                """
-                                constrain += f"""
-                                    ALTER TABLE {schema_name}.{name}
-                                        ADD CONSTRAINT {member_node_name}_fk FOREIGN KEY ({member_node_name})
-                                        REFERENCES {schema_name}.{domain_table_name} (id);
-                                """
+                                pre_sql += textwrap.dedent(f"""
+                                CREATE TABLE {schema_name}.{domain_table_name} (
+                                    id uuid,
+                                    label text,
+                                    PRIMARY KEY(id)
+                                );
+                                """)
+                                constrain += textwrap.dedent(f"""
+                                ALTER TABLE {schema_name}.{name}
+                                    ADD CONSTRAINT {member_node_name}_fk FOREIGN KEY ({member_node_name})
+                                    REFERENCES {schema_name}.{domain_table_name} (id);
+                                """)
                                 for option in options:
                                     domain_id = option['id']
                                     domain_label = option['text']
-                                    dml += f"""
-                                        INSERT INTO {schema_name}.{domain_table_name} (id, label)
+                                    dml += textwrap.dedent(f"""
+                                    INSERT INTO {schema_name}.{domain_table_name} (id, label)
                                         VALUES ('{domain_id}'::uuid, '{domain_label}');
-                                    """
+                                    """)
 
                             for tile in tiles:
                                 value = tile.data[str(member_node.pk)]
                                 if value is not None:
                                     if datatype == "GEOMETRY":
                                         value = str(value).replace("'", "\"")
-                                        value = f"""(
+                                        value = textwrap.dedent(f"""(
                                             SELECT ST_Collect(ST_GeomFromGeoJSON(feat->>'geometry'))
                                             FROM (
                                                 SELECT json_array_elements('{value}'::json->'features') AS feat
                                             ) as f
-                                        )"""
+                                        )""")
                                     elif datatype == "TIMESTAMP":
                                         if value is None:
                                             value = "NULL"
@@ -271,29 +272,30 @@ class Command(BaseCommand):
                                     else:
                                         value = str(value).replace("'", "''")
                                         value = f"'{value}'::{datatype}"
-                                    dml += f"""
-                                        UPDATE {schema_name}.{name} SET {member_node_name} = {value}
-                                            WHERE {name}_id = '{tile.pk}'::uuid;
-                                    """
+                                    dml += textwrap.dedent(f"""
+                                    UPDATE {schema_name}.{name} SET {member_node_name} = {value}
+                                        WHERE {name}_id = '{tile.pk}'::uuid;
+                                    """)
                     if node.nodegroup.parentnodegroup_id is not None:
                         parent_node = models.Node.objects.get(pk=node.nodegroup.parentnodegroup_id)
                         parent_name = parent_node.name
                         if parent_node.nodegroup.parentnodegroup_id is not None:
                             parent_name = prepend_parent_names(models.Node.objects.get(pk=parent_node.nodegroup.parentnodegroup_id), parent_name)
                         parent_name = slugify(parent_name, separator="_", max_length=60)
-                        post_sql += f"""
-                            ALTER TABLE {schema_name}.{name}
-                                ADD COLUMN {parent_name}_id uuid;
-                        """
+                        post_sql += textwrap.dedent(f"""
+                        ALTER TABLE {schema_name}.{name}
+                            ADD COLUMN {parent_name}_id uuid;
+                        """)
                         for tile in tiles:
-                            dml += f"""
-                                UPDATE {schema_name}.{name} SET {parent_name}_id = '{tile.parenttile_id}'::uuid
-                                    WHERE {name}_id = '{tile.pk}'::uuid;
-                            """
-                        constrain += f"""
-                            ALTER TABLE {schema_name}.{name}
-                                ADD CONSTRAINT {parent_name}_fk FOREIGN KEY ({parent_name}_id)
-                                REFERENCES {schema_name}.{parent_name} ({parent_name}_id);
-                        """
-        print(pre_sql + post_sql + dml + constrain)
+                            dml += textwrap.dedent(f"""
+                            UPDATE {schema_name}.{name} SET {parent_name}_id = '{tile.parenttile_id}'::uuid
+                                WHERE {name}_id = '{tile.pk}'::uuid;
+                            """)
+                        constrain += textwrap.dedent(f"""
+                        ALTER TABLE {schema_name}.{name}
+                            ADD CONSTRAINT {parent_name}_fk FOREIGN KEY ({parent_name}_id)
+                            REFERENCES {schema_name}.{parent_name} ({parent_name}_id);
+                        """)
+        sql = pre_sql + post_sql + dml + constrain
+        print(sql)
 
