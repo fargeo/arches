@@ -83,11 +83,11 @@ class Command(BaseCommand):
             "number": "TEXT",
             "resource-instance": "TEXT",
             "file-list": "TEXT",
-            "concept": "uuid",
+            "concept": "UUID",
             "concept-list": "TEXT",
             "resource-instance-list": "TEXT",
             "geojson-feature-collection": "GEOMETRY",
-            "domain-value": "TEXT",
+            "domain-value": "UUID",
             "domain-value-list": "TEXT",
             "date": "TIMESTAMP",
             "node-value": "TEXT",
@@ -187,7 +187,7 @@ class Command(BaseCommand):
                                     ADD COLUMN {member_node_name} {datatype};
                                 COMMENT ON COLUMN {schema_name}.{name}.{member_node_name} IS '{member_node.pk}';
 
-                                INSERT into graph_relational_metadata.graph_relational_metadata (graph_nodegroup_name, graph_nodegroup_id, 
+                                INSERT into graph_relational_metadata.graph_relational_metadata (graph_nodegroup_name, graph_nodegroup_id,
                                                                                             graph_node_name, graph_node_id, graph_node_datatype, graph_nodegroup_cardinality,
                                                                                             relational_schema, relational_table_name, relational_column_name, relational_column_datatype)
                                 VALUES ('{node.name}', '{node.pk}', '{member_node.name}','{member_node.pk}', 'X', 'Y','{schema_name}', '{name}', '{member_node_name}', 'Z' );
@@ -198,7 +198,18 @@ class Command(BaseCommand):
                                         ON {schema_name}.{name}
                                         USING GIST ({member_node_name});
                                 """
+                            options = []
                             if member_node.datatype == "concept":
+                                if member_node.config['rdmCollection'] is not None:
+                                    options = Concept().get_child_collections_hierarchically(member_node.config['rdmCollection'], offset=0, limit=1000000, query="")
+                                    options = [dict(list(zip(["valueto", "depth", "collector"], d))) for d in options]
+                                    options = [
+                                        dict(list(zip(["id", "text", "conceptid", "language", "type"], d["valueto"].values())), depth=d["depth"], collector=d["collector"])
+                                        for d in options
+                                    ]
+                            if member_node.datatype == "domain-value":
+                                options = member_node.config["options"]
+                            if member_node.datatype in ["concept", "domain-value"]:
                                 pre_sql += f"""
                                     CREATE TABLE {schema_name}.d_{member_node_name} (
                                         id uuid,
@@ -211,20 +222,14 @@ class Command(BaseCommand):
                                         ADD CONSTRAINT {member_node_name}_fk FOREIGN KEY ({member_node_name})
                                         REFERENCES {schema_name}.d_{member_node_name} (id);
                                 """
-                                if member_node.config['rdmCollection'] is not None:
-                                    domain = Concept().get_child_collections_hierarchically(member_node.config['rdmCollection'], offset=0, limit=1000000, query="")
-                                    domain = [dict(list(zip(["valueto", "depth", "collector"], d))) for d in domain]
-                                    domain = [
-                                        dict(list(zip(["id", "text", "conceptid", "language", "type"], d["valueto"].values())), depth=d["depth"], collector=d["collector"])
-                                        for d in domain
-                                    ]
-                                    for item in domain:
-                                        domain_id = item['id']
-                                        domain_label = item['text']
-                                        dml += f"""
-                                            INSERT INTO {schema_name}.d_{member_node_name} (id, label)
-                                            VALUES ('{domain_id}'::uuid, '{domain_label}');
-                                        """
+                                for option in options:
+                                    domain_id = option['id']
+                                    domain_label = option['text']
+                                    dml += f"""
+                                        INSERT INTO {schema_name}.d_{member_node_name} (id, label)
+                                        VALUES ('{domain_id}'::uuid, '{domain_label}');
+                                    """
+
                             for tile in tiles:
                                 value = tile.data[str(member_node.pk)]
                                 if value is not None:
@@ -242,7 +247,7 @@ class Command(BaseCommand):
                                         else:
                                             value = str(value)
                                             value = f"'{value}'::timestamp"
-                                    elif member_node.datatype == "concept":
+                                    elif member_node.datatype in ["concept", "domain-value"]:
                                         value = f"'{value}'::{datatype}"
                                     else:
                                         value = str(value).replace("'", "''")
