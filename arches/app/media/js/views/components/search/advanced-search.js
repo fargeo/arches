@@ -4,10 +4,10 @@ define([
     'knockout',
     'knockout-mapping',
     'views/components/search/base-filter',
-    'arches',
     'datatype-config-components',
-    'bindings/let'
-], function($, _, ko, koMapping, BaseFilter, arches) {
+    'bindings/let',
+], function($, _, ko, koMapping, BaseFilter) {
+    const arches = window.arches;
     var componentName = 'advanced-search';
     return ko.components.register(componentName, {
         viewModel: BaseFilter.extend({
@@ -65,7 +65,10 @@ define([
                     var graphs = response.graphs.sort(function(a,b) {
                         return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1;});
                     _.each(graphs, function(graph) {
-                        if (graph.isresource && graph.isactive) {
+                        if (
+                            graph.isresource 
+                            && graph.publication_id
+                        ) {
                             var graphCards = _.filter(response.cards, function(card) {
                                 return card.graph_id === graph.graphid && card.nodes.length > 0;
                             });
@@ -179,6 +182,6 @@ define([
                 this.filter.facets.removeAll();
             }
         }),
-        template: { require: 'text!templates/views/components/search/advanced-search.htm' }
+        template: window['advanced-search-template'] 
     });
 });

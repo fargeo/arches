@@ -1,7 +1,6 @@
 define([
     'jquery',
     'underscore',
-    'arches',
     'knockout',
     'views/components/search/base-filter',
     'views/components/map',
@@ -12,8 +11,10 @@ define([
     'geojson-extent',
     'uuid',
     'geojsonhint',
-], function($, _, arches, ko, BaseFilter, MapComponentViewModel, binFeatureCollection, mapStyles, turf, geohash,  geojsonExtent, uuid, geojsonhint) {
+], function($, _, ko, BaseFilter, MapComponentViewModel, binFeatureCollection, mapStyles, turf, geohash,  geojsonExtent, uuid, geojsonhint) {
     var componentName = 'map-filter';
+    const arches = window['arches'];
+
     return ko.components.register(componentName, {
         viewModel: BaseFilter.extend({
             initialize: function(options) {
@@ -521,7 +522,7 @@ define([
             restoreState: function() {
                 var query = this.query();
                 var buffer = 10;
-                var bufferUnit = 'm';
+                var bufferUnit = 'm'
                 var inverted = false;
                 var hasSpatialFilter = false;
                 if (componentName in query) {
@@ -603,6 +604,6 @@ define([
                 }
             }
         }),
-        template: { require: 'text!templates/views/components/search/map-filter.htm' }
+        template: window['map-filter-template']
     });
 });

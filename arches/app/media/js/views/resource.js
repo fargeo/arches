@@ -2,11 +2,10 @@ require([
     'jquery',
     'underscore',
     'knockout',
-    'uuid',
-    'arches',
     'views/base-manager',
     'bindings/chosen'
-], function($, _, ko, uuid, arches, BaseManagerView) {
+], function($, _, ko, BaseManagerView) {
+    const arches = window['arches'];
     /**
     * a BaseManagerView representing the resource listing and recent edits pages
     */

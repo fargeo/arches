@@ -5,14 +5,13 @@ require([
     'views/base-manager',
     'viewmodels/alert',
     'viewmodels/alert-json',
-    'arches',
-    'view-data',
-    'graph-manager-data',
     'bootstrap',
     'bindings/hover',
-    'bindings/chosen'
-], function($, _, ko, BaseManager, AlertViewModel, JsonErrorAlertViewModel, arches, data, graphManagerData) {
-
+    'bindings/chosen',
+    'utils/set-csrf-token',
+], function($, _, ko, BaseManager, AlertViewModel, JsonErrorAlertViewModel) {    
+    const arches = window.arches;
+    const graphManagerData = window['graph-manager-data'];
     var GraphView = BaseManager.extend({
         /**
         * Initializes an instance of BaseManager, optionally using a passed in view
@@ -48,7 +47,7 @@ require([
             };
 
             this.viewModel.leaveDropdown = function(){
-                $('.dropdown').dropdown('toggle');
+                // $('.dropdown').dropdown('toggle');
             };
 
             this.viewModel.allGraphs().forEach(function(graph) {

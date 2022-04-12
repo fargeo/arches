@@ -33,8 +33,6 @@ define(['knockout', 'viewmodels/widget'], function (ko, WidgetViewModel) {
                 return this.value() === this.on;
             }, this);
         },
-        template: {
-            require: 'text!templates/views/components/simple-switch.htm'
-        }
+        template: window['simple-switch-template']
     });
 });

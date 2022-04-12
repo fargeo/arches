@@ -131,9 +131,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             <!--/ko-->
                         </ul>
                     </div>
-                    <div>
-                        <p class="resource-status-label">{% trans "Status" %}: <span class="resource-status" data-bind="text:isactive?'{% trans "Active" %}':'{% trans "Inactive" %}'"></span></p>
-                    </div>
                 </div>
             </div>
             <!-- /ko -->
@@ -147,11 +144,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% block pre_require_js %}
 {{ block.super }}
-<script>{% autoescape off %}
-define('graph-manager-data', [], function () {
-    return {
+<script>
+    require(['underscore']);
+{% autoescape off %}
+    window['graph-manager-data'] = {
         root_nodes: {{ root_nodes }}
     };
-});
-{% endautoescape %}</script>
+    // define('graph-manager-data', [], function () {
+    //     return {
+    //         root_nodes: {{ root_nodes }}
+    //     };
+    // });
+    {% endautoescape %}
+</script>
 {% endblock pre_require_js %}
