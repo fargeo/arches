@@ -189,7 +189,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         {% endif %}
                     </div>
 
-                    <script src="{% static 'packages/requirejs/require.js' %}"></script>
+                    <script src="{% static 'node_modules/requirejs/require.js' %}"></script>
                     {% load render_bundle from webpack_loader %}
                     {% render_bundle 'hawaii-hack-react-components/react-header' %}
 
