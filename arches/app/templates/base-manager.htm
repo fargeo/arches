@@ -76,7 +76,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
                     
-                    <div id="hawaii-hackathon-header-root" class="ep-toolbar">
+                    <div customMessage="and I love you" id="hawaii-hackathon-header-root" class="ep-toolbar">
 
                         <!-- Tools Menu -->
                         {% if nav.menu %}
@@ -191,7 +191,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                     <script src="{% static 'packages/requirejs/require.js' %}"></script>
                     {% load render_bundle from webpack_loader %}
-                    {% render_bundle 'hawaii-hack-react-components/graph-designer-header' %}
+                    {% render_bundle 'hawaii-hack-react-components/react-header' %}
 
                     <!-- Notifications Panel -->
                     <div id="ep-notifs-panel" class="ep-notifs" style="display:none;">

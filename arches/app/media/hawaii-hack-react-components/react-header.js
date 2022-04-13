@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
+const container = document.getElementById('hawaii-hackathon-header-root');
+const root = createRoot(container);
+
 function Header(props) {
     const updatedMessage = '( ' + props.message + ' )';
 
@@ -21,7 +24,4 @@ function Header(props) {
     );
 }
 
-const root = createRoot(
-    document.getElementById('hawaii-hackathon-header-root')
-);
-root.render(<Header message='and I love you' />)
+root.render(<Header message={container.getAttribute('customMessage')} />)
