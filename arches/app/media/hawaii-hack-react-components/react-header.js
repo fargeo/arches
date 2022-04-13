@@ -17,7 +17,7 @@ function Header(props) {
     return (
         <div style={{display: 'flex', alignItems: 'center', width: '100%', backgroundColor: isTitleButtonClicked ? 'green' : 'pink',}}>
             <div style={titleStyle}>Hello, I'm a React header {updatedMessage}</div>
-            <button class='btn btn-small btn-info' onClick={() => setTitleButtonClickedState(!isTitleButtonClicked)}>CLICK ME!</button>
+            <button className='btn btn-small btn-info' onClick={() => setTitleButtonClickedState(!isTitleButtonClicked)}>CLICK ME!</button>
         </div>
     );
 }
