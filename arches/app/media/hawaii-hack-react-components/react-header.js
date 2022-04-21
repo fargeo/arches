@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import ManageModal from './manage-modal';
+import { createUseStyles } from 'react-jss';
 
 const container = document.getElementById('hawaii-hackathon-header-root');
 
 function Header(props) {
-    const updatedMessage = '( ' + props.message + ' )';
+    const useStyles = createUseStyles({
+        header: {
+            display: 'flex', 
+            alignItems: 'center', 
+            width: '100%',
+            height: '100%'
+        }
+    });
+    const classes = useStyles()
 
-    const [isTitleButtonClicked, setTitleButtonClickedState] = useState(false);
-
-    const titleStyle = {
-        fontSize: '28px',
-        fontWeight: 'bold',
-        marginRight: '10px',
-    };
-
-    return (
-        <div style={{display: 'flex', alignItems: 'center', width: '100%', backgroundColor: isTitleButtonClicked ? 'green' : 'pink',}}>
-            <div style={titleStyle}>Hello, I'm a React header {updatedMessage}</div>
-            <button className='btn btn-small btn-info' onClick={() => setTitleButtonClickedState(!isTitleButtonClicked)}>CLICK ME!</button>
-        </div>
-    );
+    if(props.showMenu == "True") {
+        return (
+            <div className={classes.header}>
+                <ManageModal path={props.path} graphId={props.graphId} />
+            </div>
+        );
+    } else {
+        return (
+            <div className={classes.header}>
+            </div>
+        );
+    }
 }
 
 const root = createRoot(container);
-root.render(<Header message={container.getAttribute('customMessage')} />)
+root.render(<Header graphId={container.getAttribute('graphId')} showMenu={container.getAttribute('showMenu')} path={container.getAttribute('path')} message={container.getAttribute('customMessage')} />)
