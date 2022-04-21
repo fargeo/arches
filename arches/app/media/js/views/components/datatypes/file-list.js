@@ -1,8 +1,7 @@
 define([
     'knockout',
     'underscore',
-    'view-data'
-], function (ko, _, data) {
+], function(ko, _) {
     var name = 'file-list-datatype-config';
     ko.components.register(name, {
         viewModel: function(params) {
@@ -15,7 +14,7 @@ define([
             });
             this.activated = params.config.activateMax;
         },
-        template: { require: 'text!datatype-config-templates/file-list' }
+        template: window['file-list-datatype-template']
     });
     return name;
 });

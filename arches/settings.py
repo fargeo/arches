@@ -261,7 +261,10 @@ STATIC_ROOT = ""
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = "/media/"
+STATIC_URL = "/foo/"
+
+STATIC_ROOT = os.path.join(ROOT_DIR, "staticfiles")
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # when hosting Arches under a sub path set this value to the sub path eg : "/{sub_path}/"
 FORCE_SCRIPT_NAME = None
@@ -276,6 +279,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    os.path.join(ROOT_DIR, "app", "media", "build"),
     os.path.join(ROOT_DIR, "app", "media"),
 )
 
@@ -314,7 +318,8 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             # insert your TEMPLATE_DIRS here
-            os.path.join(ROOT_DIR, "app", "templates"),
+            # os.path.join(ROOT_DIR, "app", "templates"),
+            os.path.join(ROOT_DIR, "app", "media", "build", "templates"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -347,6 +352,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 INSTALLED_APPS = (
+    "webpack_loader",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -381,6 +387,12 @@ MIDDLEWARE = [
     # "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "arches.app.utils.middleware.SetAnonymousUser",
 ]
+
+WEBPACK_LOADER = {
+    "DEFAULT": {
+        "STATS_FILE": os.path.join(ROOT_DIR, "../webpack/webpack-stats.json"),
+    },
+}
 
 ROOT_URLCONF = "arches.urls"
 
@@ -583,7 +595,7 @@ SEARCH_COMPONENT_LOCATIONS = [
     "arches.app.search.components",
 ]
 
-MAPBOX_API_KEY = ""  # Put your Mapbox key here!
+MAPBOX_API_KEY = "pk.eyJ1IjoiY2hpYXR0IiwiYSI6ImZRLTZDbVkifQ.2ZLLC1kInvxJ7isk_0_OMw"  # Put your Mapbox key here!
 
 # links to sprites and glyphs for use on map
 MAPBOX_SPRITES = "mapbox://sprites/mapbox/basic-v9"

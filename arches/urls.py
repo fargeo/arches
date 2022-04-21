@@ -26,6 +26,7 @@ from arches.app.views.graph import (
     GraphDesignerView,
     GraphSettingsView,
     GraphDataView,
+    GraphPublicationView,
     GraphManagerView,
     DatatypeTemplateView,
     CardView,
@@ -70,6 +71,7 @@ from arches.app.views.auth import (
 )
 from arches.app.models.system_settings import settings
 from django.views.decorators.cache import cache_page
+from django.conf.urls.static import static
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -175,6 +177,8 @@ urlpatterns = [
         GraphDataView.as_view(action="get_domain_connections"),
         name="get_domain_connections",
     ),
+    url(r"^graph/(?P<graphid>%s)/publish$" % uuid_regex, GraphPublicationView.as_view(action="publish"), name="publish_graph"),
+    url(r"^graph/(?P<graphid>%s)/unpublish$" % uuid_regex, GraphPublicationView.as_view(action="unpublish"), name="unpublish_graph"),
     url(r"^graph/(?P<graphid>%s)/function_manager$" % uuid_regex, FunctionManagerView.as_view(), name="function_manager"),
     url(r"^graph/(?P<graphid>%s)/apply_functions$" % uuid_regex, FunctionManagerView.as_view(), name="apply_functions"),
     url(r"^graph/(?P<graphid>%s)/remove_functions$" % uuid_regex, FunctionManagerView.as_view(), name="remove_functions"),
@@ -294,7 +298,7 @@ urlpatterns = [
     url(r"^image-service-manager", ManifestManagerView.as_view(), name="manifest_manager"),
     url(r"^clear-user-permission-cache", ClearUserPermissionCache.as_view(), name="clear_user_permission_cache"),
     url(r"^transform-edtf-for-tile", api.TransformEdtfForTile.as_view(), name="transform_edtf_for_tile"),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     try:

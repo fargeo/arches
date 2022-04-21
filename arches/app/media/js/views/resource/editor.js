@@ -9,15 +9,18 @@ define([
     'models/report',
     'viewmodels/card',
     'viewmodels/provisional-tile',
-    'arches',
-    'resource-editor-data',
-    'report-templates',
     'bindings/resizable-sidepanel',
     'bindings/sortable',
-    'widgets',
-    'card-components',
     'moment',
-], function($, _, ko, BaseManagerView, AlertViewModel, JsonErrorAlertViewModel, GraphModel, ReportModel, CardViewModel, ProvisionalTileViewModel, arches, data, reportLookup) {
+    'views/components/resource-report-abstract',
+    'reports/default',
+    'views/components/widgets/number',
+    'views/components/plugins/map'
+], function($, _, ko, BaseManagerView, AlertViewModel, JsonErrorAlertViewModel, GraphModel, ReportModel, CardViewModel, ProvisionalTileViewModel) {
+    const data = window['resource-editor-data'];
+    const arches = window.arches;
+    const reportLookup = window['report-templates'];
+
     var handlers = {
         'after-update': [],
         'tile-reset': []
@@ -186,7 +189,10 @@ define([
         resourceId: resourceId,
         reportLookup: reportLookup,
         copyResource: function() {
-            if (resourceId()) {
+            if (data.graph && !data.graph.publication_id) {
+                vm.alert(new AlertViewModel('ep-alert-red', arches.resourceHasUnpublishedGraph.title, arches.resourceHasUnpublishedGraph.text, null, function(){}));
+            }
+            else if (resourceId()) {
                 vm.menuActive(false);
                 loading(true);
                 $.ajax({
@@ -202,6 +208,9 @@ define([
                         loading(false);
                     },
                 });
+            }
+            else {
+                vm.alert(new AlertViewModel('ep-alert-red', arches.resourceCopyFailed.title, arches.resourceCopyFailed.text, null, function(){}));
             }
         },
         deleteResource: function() {

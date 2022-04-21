@@ -1,8 +1,8 @@
 define([
     'knockout',
-    'arches',
+    'underscore',
     'views/list'
-], function(ko, arches, ListView) {
+], function(ko, _, ListView) {
     var IdentityList = ListView.extend({
         /**
         * A backbone view to manage a list of graph nodes

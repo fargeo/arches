@@ -2,11 +2,11 @@ define([
     'underscore',
     'jquery',
     'knockout',
-    'arches',
     'viewmodels/card-component',
     'viewmodels/alert',
     'chosen'
-], function(_, $, ko, arches, CardComponentViewModel, AlertViewModel) {
+], function(_, $, ko, CardComponentViewModel, AlertViewModel) {
+    const arches = window.arches;
 
     var flattenTree = function(parents, flatList) {
         _.each(ko.unwrap(parents), function(parent) {
@@ -309,9 +309,7 @@ define([
 
     ko.components.register('grouping-card-component', {
         viewModel: viewModel,
-        template: {
-            require: 'text!templates/views/components/cards/grouping.htm'
-        }
+        template: window['grouping-card-template']
     });
     return viewModel;
 });

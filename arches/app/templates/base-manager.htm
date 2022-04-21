@@ -73,7 +73,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <!-- /ko -->
 
                     {% block header %}
-                    <div class="ep-toolbar">
+
+
+                    
+
+                    
+                    <div showMenu="{{ nav.menu }}" path="{{ main_script }}" graphId="{{ graphid }}" customMessage="and I love you" id="hawaii-hackathon-header-root" class="ep-toolbar">
 
                         <!-- Tools Menu -->
                         {% if nav.menu %}
@@ -185,6 +190,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         </a>
                         {% endif %}
                     </div>
+
+                    {% load render_bundle from webpack_loader %}
+                    {% load webpack_static from webpack_loader %}
+
+                    <script src="{% webpack_static 'node_modules/requirejs/require.js' %}"></script>
+                    {% render_bundle 'hawaii-hack-react-components/react-header' %}
+
+
+
 
                     <!-- Notifications Panel -->
                     <div id="ep-notifs-panel" class="ep-notifs" style="display:none;">
@@ -473,15 +487,22 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% block pre_require_js %}
     <script>
         {% autoescape off %}
-        define('view-data', [], function () {
-            return {
-                graphs: {{graphs}},
-                createableResources: {{createable_resources}},
-                help: "{{nav.help.template}}",
-                userCanEditResources: JSON.parse('{{ user_can_edit }}'.toLowerCase()),
-                userCanReadResources: JSON.parse('{{ user_can_read }}'.toLowerCase())
-            };
-        });
+        window['view-data'] = {
+            graphs: {{graphs}},
+            createableResources: {{createable_resources}},
+            help: "{{nav.help.template}}",
+            userCanEditResources: JSON.parse('{{ user_can_edit }}'.toLowerCase()),
+            userCanReadResources: JSON.parse('{{ user_can_read }}'.toLowerCase())
+        };
+        // define('view-data', [], function () {
+        //     return {
+        //         graphs: {{graphs}},
+        //         createableResources: {{createable_resources}},
+        //         help: "{{nav.help.template}}",
+        //         userCanEditResources: JSON.parse('{{ user_can_edit }}'.toLowerCase()),
+        //         userCanReadResources: JSON.parse('{{ user_can_read }}'.toLowerCase())
+        //     };
+        // });
         {% endautoescape %}
     </script>
 {% endblock pre_require_js %}

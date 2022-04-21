@@ -2,15 +2,16 @@ define([
     'jquery',
     'underscore',
     'knockout',
-    'arches',
     'views/components/search/base-filter',
-    'report-templates',
-    'card-components',
     'models/report',
     'viewmodels/card',
     'views/components/resource-report-abstract',
     'bindings/chosen'
-], function($, _, ko, arches, BaseFilter, reportLookup, cardComponents, ReportModel, CardViewModel) {
+], function($, _, ko, BaseFilter, ReportModel, CardViewModel) {
+    const reportLookup = window['report-templates'];
+    const cardComponents = window['card-components'];
+
+    
     var componentName = 'search-result-details';
     return ko.components.register(componentName, {
         viewModel: BaseFilter.extend({
@@ -26,6 +27,7 @@ define([
 
                 this.report = ko.observable();
                 this.loading = ko.observable(false);
+                this.reportExpanded = ko.observable();
 
                 var setSearchResults = function(){
                     options.searchResultsVm = self.getFilter('search-results');
@@ -112,6 +114,6 @@ define([
                 };
             }
         }),
-        template: { require: 'text!templates/views/components/search/search-result-details.htm'}
+        template: window['search-result-details-template']
     });
 });

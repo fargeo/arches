@@ -3,10 +3,11 @@ define([
     'underscore',
     'knockout',
     'knockout-mapping',
-    'arches',
     'require',
-    'viewmodels/card'
-], function($, _, ko, koMapping, arches, require) {
+    'viewmodels/card',
+    'utils/set-csrf-token'
+], function($, _, ko, koMapping, require) {
+    const arches = window.arches;
     /**
     * A viewmodel used for generic cards
     *

@@ -40,3 +40,5 @@ pip-wheel-metadata
 .eggs
 *.code-workspace
 coverage.xml
+webpack-stats.json
+CACHE

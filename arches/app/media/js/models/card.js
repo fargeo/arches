@@ -1,15 +1,63 @@
 define([
     'underscore',
-    'arches',
     'models/abstract',
     'models/node',
     'models/card-widget',
     'knockout',
     'knockout-mapping',
-    'card-components',
     'viewmodels/card-constraints',
-    'utils/dispose'
-], function(_, arches, AbstractModel, NodeModel, CardWidgetModel, ko, koMapping, cardComponentLookup, CardConstraintsViewModel, dispose) {
+    'regenerator-runtime',
+    'utils/dispose',
+    
+    'views/components/cards/default',
+    'views/components/cards/file-viewer',
+    'views/components/cards/grouping',
+    'views/components/cards/iiif-card',
+    'views/components/cards/map',
+    'views/components/cards/photo-gallery-card',
+    'views/components/cards/related-resources-map',
+
+    'reports/default',
+    'reports/map',
+
+    'views/components/datatypes/boolean',
+    'views/components/datatypes/concept',
+    'views/components/datatypes/date',
+    'views/components/datatypes/domain-value',
+    'views/components/datatypes/edtf',
+    'views/components/datatypes/file-list',
+    'views/components/datatypes/geojson-feature-collection',
+    'views/components/datatypes/node-value',
+    'views/components/datatypes/number',
+    'views/components/datatypes/resource-instance',
+    'views/components/datatypes/string',
+    'views/components/datatypes/url',
+
+    'views/components/widgets/concept-checkbox',
+    'views/components/widgets/concept-multiselect',
+    'views/components/widgets/concept-radio',
+    'views/components/widgets/concept-select',
+    'views/components/widgets/datepicker',
+    'views/components/widgets/domain-checkbox',
+    'views/components/widgets/domain-multiselect',
+    'views/components/widgets/domain-radio',
+    'views/components/widgets/domain-select',
+    'views/components/widgets/edtf',
+    'views/components/widgets/file',
+    'views/components/widgets/iiif',
+    'views/components/widgets/map',
+    'views/components/widgets/node-value-select',
+    'views/components/widgets/number',
+    'views/components/widgets/radio-boolean',
+    'views/components/widgets/resource-instance-multiselect',
+    'views/components/widgets/resource-instance-select',
+    'views/components/widgets/rich-text',
+    'views/components/widgets/switch',
+    'views/components/widgets/text',
+    'views/components/widgets/urldatatype',
+], function(_, AbstractModel, NodeModel, CardWidgetModel, ko, koMapping, CardConstraintsViewModel, regeneratorRuntime, dispose) {
+    const cardComponentLookup = window['card-components'];
+    const arches = window.arches;
     var CardModel = AbstractModel.extend({
         /**
         * A backbone model to manage card data

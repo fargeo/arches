@@ -1,11 +1,12 @@
 define([
     'knockout',
     'underscore',
-    'view-data',
-    'arches',
     'utils/ontology',
     'views/components/widgets/resource-instance-select'
-], function(ko, _, data, arches, ontologyUtils) {
+], function(ko, _, ontologyUtils) {
+    const data = window['view-data'];
+    const arches = window['arches'];
+
     var name = 'resource-instance-datatype-config';
     ko.components.register(name, {
         viewModel: function(params) {
@@ -167,7 +168,7 @@ define([
 
             }
         },
-        template: { require: 'text!datatype-config-templates/resource-instance' }
+        template: window['resource-instance-datatype-template']
     });
     return name;
 });
