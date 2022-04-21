@@ -9,8 +9,12 @@
 
 
 {% block main_content %}
-<div id="" class="relative" style="display: block;">
-
+<div id="resource-history-subheader-root"  data-bind="react: { 
+    Component: ResourceHistorySubheader, 
+    displayName: $data.displayname,
+    currentDate: $data.currentDate,
+    textInputValue: $data.textInputValue,
+}">
     <!-- Title Block -->
     <div class="report-toolbar-preview ep-form-toolbar">
         <div class="eh_resource_descriptors">
@@ -19,6 +23,11 @@
         </div>
     </div>
 </div>
+
+<span>KOJS input</span>
+<input type="text" data-bind="textInput: $data.textInputValue">
+
+
 <div class="panel-body eh-timeline eh-timeline-panel">
     <!-- Timeline -->
     <!--===================================================-->

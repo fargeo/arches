@@ -4,8 +4,11 @@ require([
     'knockout',
     'moment',
     'views/base-manager',
-    'bindings/chosen'
-], function($, _, ko, moment, BaseManagerView) {
+    'react',
+    'react-dom/client',
+    '../../../hawaii-hack-react-components/resource-history-subheader',
+    'bindings/chosen',
+], function($, _, ko, moment, BaseManagerView, React, ReactDOM, ResourceHistorySubheader) {
     const data = window['resource-edit-history-data'];
     var ResourceEditLogView = BaseManagerView.extend({
         initialize: function(options){
@@ -71,6 +74,10 @@ require([
                 };
             })
 
+            this.viewModel.textInputValue = ko.observable('');
+
+
+            this.viewModel.ResourceHistorySubheader = ResourceHistorySubheader.default;
             this.viewModel.displayname = data.displayname;
             this.viewModel.description = data.description;
             this.viewModel.sortOrder = ko.observable('time_desc')
@@ -97,5 +104,33 @@ require([
             BaseManagerView.prototype.initialize.call(this, options);
         }
     });
+
+    
+
+
+    ko.bindingHandlers.react = {
+        update: render
+    }
+
+    let root;
+    
+    function render(element, valueAccessor) {
+        const { Component, ...props } = valueAccessor();
+
+        for (propKey in props) {
+            if (ko.isObservable(props[propKey])) {
+                props[`__${propKey}_raw_data`] = props[propKey]();
+            }
+        }
+
+        if (!root) {
+            root = ReactDOM.createRoot(element);
+        }
+
+        root.render(
+            <Component {...props} />
+        );
+    }
+
     return new ResourceEditLogView();
 });
