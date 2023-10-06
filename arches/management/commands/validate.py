@@ -116,6 +116,12 @@ class Command(BaseCommand):
             else:
                 all_corrupt_tiles = all_corrupt_tiles | corrupt_tiles
 
+        self.check_integrity(
+            check=IntegrityCheck.TILE_STORING_NONEXISTENT_CONCEPT,  # 2000
+            queryset=all_corrupt_tiles,
+            fix_action=None,
+        )
+
         corrupt_tile_ids = []
         valid_concepts_for_nodes = {}
         concept_values_for_report = {}
@@ -144,11 +150,6 @@ class Command(BaseCommand):
                         concept_nodes_for_report[tileid] = nodeid  # will overwrite
 
         self.check_integrity(
-            check=IntegrityCheck.TILE_STORING_NONEXISTENT_CONCEPT,  # 2000
-            queryset=all_corrupt_tiles,
-            fix_action=None,
-        )
-        self.check_integrity(
             check=IntegrityCheck.TILE_STORING_INVALID_CONCEPT,  # 2001
             queryset=models.TileModel.objects.filter(pk__in=corrupt_tile_ids),
             fix_action=None,
@@ -163,7 +164,7 @@ class Command(BaseCommand):
         if self.mode == VALIDATE:
             # Fixable?
             fix_status = self.style.MIGRATE_HEADING("Yes") if fix_action else self.style.NOTICE("No")
-            if queryset.exists():
+            if not queryset.exists():
                 fix_status = self.style.MIGRATE_HEADING("N/A")
         else:
             if not self.options["fix_all"] and check.value not in self.options["fix"]:
