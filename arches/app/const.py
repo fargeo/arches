@@ -5,6 +5,7 @@ IntegrityCheckDescriptions = {
     1005: "Nodes with ontologies found in graphs without ontologies",
     1012: "Node Groups without matching nodes",
     2000: "Tiles storing nonexistent concept values",
+    2001: "Tiles storing invalid concept values",
 }
 
 @unique
@@ -15,6 +16,7 @@ class IntegrityCheck(Enum):
 
     # Tiles
     TILE_STORING_NONEXISTENT_CONCEPT = 2000
+    TILE_STORING_INVALID_CONCEPT = 2001
 
     def __str__(self):
         return IntegrityCheckDescriptions[self.value]
