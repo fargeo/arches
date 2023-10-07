@@ -17,20 +17,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from datetime import datetime
+import uuid
+
+from django.contrib.postgres.expressions import ArraySubquery
+from django.contrib.postgres.fields import ArrayField
+from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+from django.db.models import Exists, OuterRef, Func, F, Subquery, Value
+from django.db.models.fields import CharField, UUIDField
+from django.db.models.fields.json import KT
+from django.db.models.functions import Cast, Replace
+
 
 from arches import __version__
 from arches.app.const import IntegrityCheck
 from arches.app.models import models
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection, transaction
-from django.db.models import Exists, OuterRef, Func, F
-from django.db.models.fields import UUIDField
-from django.db.models.functions import Cast
-
-from pprint import pprint as pp
-import uuid
-
-from django.db.models.fields.json import KT
 
 # Command modes
 FIX = "fix"
@@ -49,6 +50,7 @@ class Command(BaseCommand):
 
     Example: python manage.py validate --fix-all
     """
+
     help = "Validate an Arches database against a set of data integrity checks, and opt-in to remediation."
 
     def add_arguments(self, parser):
@@ -65,6 +67,45 @@ class Command(BaseCommand):
             help="List the error codes to fix, e.g. --fix 1001 1002 ...",
         )
         parser.add_argument("--limit", action="store", type=int, help="Maximum number of rows to print; does not affect fix actions")
+
+    def get_tiles_storing_nonexistent_concepts(self):
+        # retry with prefetch_related
+        tiles_storing_nonexistent_concepts = models.TileModel.objects.none()
+        for concept_list_node in models.Node.objects.filter(datatype="concept"):
+            corrupt_tiles = (
+                models.TileModel.objects.filter(data__has_key=str(concept_list_node.pk))
+                .annotate(concept_value=Cast(KT(f"data__{str(concept_list_node.pk)}"), output_field=UUIDField()))
+                .filter(concept_value__isnull=False)
+                .exclude(Exists(models.Value.objects.filter(pk=OuterRef("concept_value"))))
+            )
+            tiles_storing_nonexistent_concepts |= corrupt_tiles
+
+        return tiles_storing_nonexistent_concepts
+
+        # todo -- concept list
+
+    def get_tiles_storing_invalid_concepts(self):
+        # todo -- concept
+        concept_list_nodes = (
+            models.Node.objects.filter(datatype="concept-list")
+            .annotate(collection=Cast(KT("config__rdmCollection"), output_field=UUIDField()))
+            .annotate(valid_concepts=ArraySubquery(models.Value.objects.filter(concept_id=OuterRef("collection")).values("pk")))
+        )
+
+        invalid_tile_pks = []
+        for concept_list_node in concept_list_nodes:
+            tiles_to_check = models.TileModel.objects.filter(data__has_key=str(concept_list_node.pk))
+            for tile in tiles_to_check:
+                concept_values = tile.data[str(concept_list_node.pk)]
+                if concept_values is None:
+                    continue
+                for concept_value in concept_values:
+                    if uuid.UUID(concept_value) not in concept_list_node.valid_concepts:
+                        invalid_tile_pks.append(tile.pk)
+                        break  # doesn't check for multiple invalid values
+
+        # Select any related objects needed for report
+        return models.TileModel.objects.filter(pk__in=invalid_tile_pks).select_related("nodegroup", "resourceinstance__graph")
 
     def handle(self, *args, **options):
         self.options = options
@@ -101,58 +142,23 @@ class Command(BaseCommand):
             queryset=models.NodeGroup.objects.filter(~Exists(models.Node.objects.filter(nodegroup_id=OuterRef("nodegroupid")))),
             fix_action=DELETE_QUERYSET,
         )
-
-        concept_nodes = models.Node.objects.filter(datatype="concept")
-        all_corrupt_tiles = models.TileModel.objects.none()
-        for concept_node in concept_nodes:
-            corrupt_tiles = (
-                models.TileModel.objects.filter(data__has_key=str(concept_node.pk))
-                .annotate(concept_value=Cast(KT(f"data__{str(concept_node.pk)}"), output_field=UUIDField()))
-                .filter(concept_value__isnull=False)
-                .exclude(Exists(models.Value.objects.filter(pk=OuterRef('concept_value'))))
-            )
-            all_corrupt_tiles = all_corrupt_tiles | corrupt_tiles
-
         self.check_integrity(
             check=IntegrityCheck.TILE_STORING_NONEXISTENT_CONCEPT,  # 2000
-            queryset=all_corrupt_tiles,
+            queryset=self.get_tiles_storing_nonexistent_concepts(),
             fix_action=None,
         )
-
-        corrupt_tile_ids = []
-        valid_concepts_for_nodes = {}
-        concept_values_for_report = {}
-        concept_nodes_for_report = {}
-        with connection.cursor() as cursor:
-            # see view at bottom of file
-            cursor.execute("SELECT nodeid, nodevalue, tileid from vw_tile_data_validate WHERE datatype IN ('concept', 'concept-list') AND nodevalue IS NOT NULL")
-            results = cursor.fetchall()
-            for result in results:
-                nodeid, concept_values, tileid = result
-                stripped = concept_values[1:-1]  # stringified uuids!
-                split = stripped.split(',')
-                quotes_removed = [x.replace('"', '').replace(' ', '') for x in split]
-
-                try:
-                    valid_concepts = valid_concepts_for_nodes[nodeid]
-                except KeyError:
-                    cursor.execute(f"SELECT valueid from __arches_get_labels_for_concept_node('{nodeid}')")
-                    valid_concepts = cursor.fetchall()
-                    valid_concepts_for_nodes[nodeid] = valid_concepts
-
-                for concept_value in quotes_removed:
-                    if concept_value not in str(valid_concepts):  # todo: improve
-                        corrupt_tile_ids.append(tileid)
-                        concept_values_for_report[tileid] = concept_value  # will overwrite
-                        concept_nodes_for_report[tileid] = nodeid  # will overwrite
-
         self.check_integrity(
             check=IntegrityCheck.TILE_STORING_INVALID_CONCEPT,  # 2001
-            queryset=models.TileModel.objects.filter(pk__in=corrupt_tile_ids),
+            queryset=self.get_tiles_storing_invalid_concepts(),
             fix_action=None,
-            context_for_report=concept_values_for_report,
-            context_for_report_2=concept_nodes_for_report,
+            # context_for_report=concept_values_for_report,
+            # context_for_report_2=concept_nodes_for_report,
         )
+        # from django.db import connection
+        # from pprint import pprint
+        # for i, query in enumerate(connection.queries):
+        #     print(i)
+        #     pprint(query)
 
     def check_integrity(self, check, queryset, fix_action, context_for_report=None, context_for_report_2=None):  # lol...
         # 500 not set as a default earlier: None distinguishes whether verbose output implied
@@ -202,10 +208,14 @@ class Command(BaseCommand):
                 if queryset:
                     for i, row in enumerate(queryset):
                         if i < limit:
-                            if check.value == 2000:
-                                self.stdout.write(f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}")
-                            elif check.value == 2001:
-                                self.stdout.write(f"Node: {context_for_report_2[row.tileid]} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name} | Orphaned Concept Value: {context_for_report[row.tileid]}")
+                            if check.value in (2000, 2001):
+                                self.stdout.write(
+                                    f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}"
+                                )
+                            # elif check.value == 2001:
+                            #     self.stdout.write(
+                            #         f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name} | Current Values: {row.concept_values} | Valid Values: {row.valid_concepts_for_report}"
+                            #     )
                             else:
                                 self.stdout.write(f"{row.pk}")
                         else:
