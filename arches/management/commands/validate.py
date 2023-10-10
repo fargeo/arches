@@ -19,10 +19,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from datetime import datetime
 import uuid
 
-from django.contrib.postgres.expressions import ArraySubquery
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Func
+from django.db.models import Exists, OuterRef, F, Func
 from django.db.models.fields import UUIDField
 from django.db.models.fields.json import KT
 from django.db.models.functions import Cast
@@ -85,22 +84,15 @@ class Command(BaseCommand):
 
     nodes_by_tile = {}
     valid_values_by_tile = {}
+
     def get_tiles_storing_invalid_concepts(self):
         concept_or_concept_list_nodes = (
             models.Node.objects.filter(datatype__in=("concept", "concept-list"))
-            .annotate(collection=Cast(KT("config__rdmCollection"), output_field=UUIDField()))
-            .annotate(relations=ArraySubquery(models.Relation.objects.filter(conceptfrom_id=OuterRef("collection")).values("conceptto_id")))
             .annotate(
-                valid_concepts=ArraySubquery(
-                    models.Value.objects.filter(valuetype="prefLabel")
-                    .filter(
-                        concept_id__in=Func(
-                            OuterRef("relations"),
-                            # https://stackoverflow.com/a/76121876
-                            function="SELECT unnest",
-                        )
-                    )
-                    .values("pk")
+                valid_concepts=Func(
+                    F("nodeid"),
+                    function="__arches_get_labels_for_concept_node",
+                    template="ARRAY(SELECT valueid FROM %(function)s(%(expressions)s))",
                 )
             )
             .only("pk", "nodeid", "datatype", "config")
@@ -108,7 +100,7 @@ class Command(BaseCommand):
 
         invalid_tile_pks = []
         for node in concept_or_concept_list_nodes:
-            tiles_to_check = models.TileModel.objects.filter(data__has_key=str(node.pk))
+            tiles_to_check = models.TileModel.objects.filter(data__has_key=str(node.pk)).only("pk", "data")
             for tile in tiles_to_check:
                 concept_values = tile.data[str(node.pk)]
                 if concept_values is None:
@@ -172,11 +164,6 @@ class Command(BaseCommand):
             # context_for_report=concept_values_for_report,
             # context_for_report_2=concept_nodes_for_report,
         )
-        # from django.db import connection
-        # from pprint import pprint
-        # for i, query in enumerate(connection.queries):
-        #     print(i)
-        #     pprint(query)
 
     def check_integrity(self, check, queryset, fix_action, context_for_report=None, context_for_report_2=None):  # lol...
         # 500 not set as a default earlier: None distinguishes whether verbose output implied
@@ -227,16 +214,14 @@ class Command(BaseCommand):
                     for i, row in enumerate(queryset):
                         if i < limit:
                             if check.value == 2000:
-                                self.stdout.write(
-                                    f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}"
-                                )
+                                self.stdout.write(f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid}")
                             elif check.value == 2001:
+                                self.stdout.write("****")
                                 self.stdout.write(f"Tile: {row.tileid}")
                                 self.stdout.write(f"Node: {self.nodes_by_tile[row.pk]}")
                                 self.stdout.write(f"    Resource: {row.resourceinstance.graph.name}")
                                 self.stdout.write(f"    Value: {row.data[self.nodes_by_tile[row.pk]]}")
                                 self.stdout.write(f"    Valid Values: {self.valid_values_by_tile[row.pk]}")
-                                self.stdout.write("****")
                             else:
                                 self.stdout.write(f"{row.pk}")
                         else:
