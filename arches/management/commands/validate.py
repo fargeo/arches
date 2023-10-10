@@ -20,13 +20,12 @@ from datetime import datetime
 import uuid
 
 from django.contrib.postgres.expressions import ArraySubquery
-from django.contrib.postgres.fields import ArrayField
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Func, F, Subquery, Value
-from django.db.models.fields import CharField, UUIDField
+from django.db.models import Exists, OuterRef, Func
+from django.db.models.fields import UUIDField
 from django.db.models.fields.json import KT
-from django.db.models.functions import Cast, Replace
+from django.db.models.functions import Cast
 
 
 from arches import __version__
@@ -85,11 +84,26 @@ class Command(BaseCommand):
         # todo -- concept list
 
     nodes_having_invalid_concepts = {}
+
     def get_tiles_storing_invalid_concepts(self):
         concept_or_concept_list_nodes = (
             models.Node.objects.filter(datatype__in=("concept", "concept-list"))
             .annotate(collection=Cast(KT("config__rdmCollection"), output_field=UUIDField()))
-            .annotate(valid_concepts=ArraySubquery(models.Value.objects.filter(concept_id=OuterRef("collection")).values("pk")))
+            .annotate(relations=ArraySubquery(models.Relation.objects.filter(conceptfrom_id=OuterRef("collection")).values("conceptto_id")))
+            .annotate(
+                valid_concepts=ArraySubquery(
+                    models.Value.objects.filter(valuetype="prefLabel")
+                    .filter(
+                        concept_id__in=Func(
+                            OuterRef("relations"),
+                            # https://stackoverflow.com/a/76121876
+                            function="SELECT unnest",
+                        )
+                    )
+                    .values("pk")
+                )
+            )
+            .only("pk", "nodeid", "datatype", "config")
         )
 
         invalid_tile_pks = []
