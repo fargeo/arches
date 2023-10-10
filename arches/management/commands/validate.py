@@ -84,6 +84,7 @@ class Command(BaseCommand):
 
         # todo -- concept list
 
+    nodes_having_invalid_concepts = {}
     def get_tiles_storing_invalid_concepts(self):
         concept_or_concept_list_nodes = (
             models.Node.objects.filter(datatype__in=("concept", "concept-list"))
@@ -103,6 +104,7 @@ class Command(BaseCommand):
                 for concept_value in concept_values:
                     if uuid.UUID(concept_value) not in node.valid_concepts:
                         invalid_tile_pks.append(tile.pk)
+                        self.nodes_having_invalid_concepts[tile.pk] = node.pk
                         break  # doesn't check for multiple invalid values
 
         # Select any related objects needed for report
@@ -209,14 +211,14 @@ class Command(BaseCommand):
                 if queryset:
                     for i, row in enumerate(queryset):
                         if i < limit:
-                            if check.value in (2000, 2001):
+                            if check.value == 2000:
                                 self.stdout.write(
                                     f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}"
                                 )
-                            # elif check.value == 2001:
-                            #     self.stdout.write(
-                            #         f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name} | Current Values: {row.concept_values} | Valid Values: {row.valid_concepts_for_report}"
-                            #     )
+                            elif check.value == 2001:
+                                self.stdout.write(
+                                    f"Node: {self.nodes_having_invalid_concepts[row.pk]} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}"
+                                )
                             else:
                                 self.stdout.write(f"{row.pk}")
                         else:
