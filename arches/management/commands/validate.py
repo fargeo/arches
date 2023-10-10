@@ -85,22 +85,23 @@ class Command(BaseCommand):
         # todo -- concept list
 
     def get_tiles_storing_invalid_concepts(self):
-        # todo -- concept
-        concept_list_nodes = (
-            models.Node.objects.filter(datatype="concept-list")
+        concept_or_concept_list_nodes = (
+            models.Node.objects.filter(datatype__in=("concept", "concept-list"))
             .annotate(collection=Cast(KT("config__rdmCollection"), output_field=UUIDField()))
             .annotate(valid_concepts=ArraySubquery(models.Value.objects.filter(concept_id=OuterRef("collection")).values("pk")))
         )
 
         invalid_tile_pks = []
-        for concept_list_node in concept_list_nodes:
-            tiles_to_check = models.TileModel.objects.filter(data__has_key=str(concept_list_node.pk))
+        for node in concept_or_concept_list_nodes:
+            tiles_to_check = models.TileModel.objects.filter(data__has_key=str(node.pk))
             for tile in tiles_to_check:
-                concept_values = tile.data[str(concept_list_node.pk)]
+                concept_values = tile.data[str(node.pk)]
                 if concept_values is None:
                     continue
+                if node.datatype == "concept":
+                    concept_values = [concept_values]
                 for concept_value in concept_values:
-                    if uuid.UUID(concept_value) not in concept_list_node.valid_concepts:
+                    if uuid.UUID(concept_value) not in node.valid_concepts:
                         invalid_tile_pks.append(tile.pk)
                         break  # doesn't check for multiple invalid values
 
