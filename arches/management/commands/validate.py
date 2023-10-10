@@ -83,8 +83,8 @@ class Command(BaseCommand):
 
         # todo -- concept list
 
-    nodes_having_invalid_concepts = {}
-
+    nodes_by_tile = {}
+    valid_values_by_tile = {}
     def get_tiles_storing_invalid_concepts(self):
         concept_or_concept_list_nodes = (
             models.Node.objects.filter(datatype__in=("concept", "concept-list"))
@@ -118,7 +118,8 @@ class Command(BaseCommand):
                 for concept_value in concept_values:
                     if uuid.UUID(concept_value) not in node.valid_concepts:
                         invalid_tile_pks.append(tile.pk)
-                        self.nodes_having_invalid_concepts[tile.pk] = node.pk
+                        self.nodes_by_tile[tile.pk] = str(node.pk)
+                        self.valid_values_by_tile[tile.pk] = [str(x) for x in node.valid_concepts]
                         break  # doesn't check for multiple invalid values
 
         # Select any related objects needed for report
@@ -230,9 +231,12 @@ class Command(BaseCommand):
                                     f"Nodegroup: {row.nodegroup.pk} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}"
                                 )
                             elif check.value == 2001:
-                                self.stdout.write(
-                                    f"Node: {self.nodes_having_invalid_concepts[row.pk]} | Tile: {row.tileid} | Resource: {row.resourceinstance.graph.name}"
-                                )
+                                self.stdout.write(f"Tile: {row.tileid}")
+                                self.stdout.write(f"Node: {self.nodes_by_tile[row.pk]}")
+                                self.stdout.write(f"    Resource: {row.resourceinstance.graph.name}")
+                                self.stdout.write(f"    Value: {row.data[self.nodes_by_tile[row.pk]]}")
+                                self.stdout.write(f"    Valid Values: {self.valid_values_by_tile[row.pk]}")
+                                self.stdout.write("****")
                             else:
                                 self.stdout.write(f"{row.pk}")
                         else:
