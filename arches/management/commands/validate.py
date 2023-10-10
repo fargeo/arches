@@ -108,7 +108,10 @@ class Command(BaseCommand):
         )
 
         invalid_tile_pks = []
+        counter = 0
+        count = concept_or_concept_list_nodes.count()
         for node in concept_or_concept_list_nodes:
+            counter += 1
             tiles_to_check = models.TileModel.objects.filter(data__has_key=str(node.pk)).only("pk", "data")
             for tile in tiles_to_check:
                 concept_values = tile.data[str(node.pk)]
@@ -122,6 +125,8 @@ class Command(BaseCommand):
                         self.nodes_by_tile[tile.pk] = str(node.pk)
                         self.valid_values_by_tile[tile.pk] = [str(x) for x in node.valid_concepts]
                         break  # doesn't check for multiple invalid values
+            if count % 5 == 0:
+                print(f"checked {count} nodes")
 
         # Select any related objects needed for report
         return models.TileModel.objects.filter(pk__in=invalid_tile_pks).select_related("nodegroup", "resourceinstance__graph")
@@ -170,8 +175,6 @@ class Command(BaseCommand):
             check=IntegrityCheck.TILE_STORING_INVALID_CONCEPT,  # 2001
             queryset=self.get_tiles_storing_invalid_concepts(),
             fix_action=None,
-            # context_for_report=concept_values_for_report,
-            # context_for_report_2=concept_nodes_for_report,
         )
 
     def check_integrity(self, check, queryset, fix_action, context_for_report=None, context_for_report_2=None):  # lol...
