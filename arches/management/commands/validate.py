@@ -64,6 +64,15 @@ class Command(BaseCommand):
             choices=choices,
             help="List the error codes to fix, e.g. --fix 1001 1002 ...",
         )
+        parser.add_argument(
+            "--check",
+            action="extend",
+            nargs="+",
+            type=int,
+            default=[],
+            choices=choices,
+            help="List the error codes to check, e.g. --check 1001 1002 ...",
+        )
         parser.add_argument("--limit", action="store", type=int, help="Maximum number of rows to print; does not affect fix actions")
 
     def get_tiles_storing_nonexistent_concepts(self):
@@ -170,13 +179,16 @@ class Command(BaseCommand):
         limit = self.options["limit"] or 500
 
         if self.mode == VALIDATE:
+            if self.options["check"] and check.value not in self.options["check"]:
+                # User didn't request this specific check (validate mode).
+                return
             # Fixable?
             fix_status = self.style.MIGRATE_HEADING("Yes") if fix_action else self.style.NOTICE("No")
             if not queryset.exists():
                 fix_status = self.style.MIGRATE_HEADING("N/A")
         else:
             if not self.options["fix_all"] and check.value not in self.options["fix"]:
-                # User didn't request this specific check.
+                # User didn't request this specific check (fix mode).
                 return
 
             # Fixed?
